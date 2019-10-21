@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css?family=Nunito&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Quicksand&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/styles.css">
+    <script src="store.js" async></script>
+  </head>
+  <body>
+    <div class='header'>
+      <span>FICTIONAL STORE</span>
+    </div>
+    <div class="floating-cart"><a href="#cart" class="floating-cart-text">Cart</a></div>
+    <div class='container'>
+          <!-- Loading screen-->
+    <div class='loading-screen'>
+        <div class="loading-section">
+          <div class="section-title">
+              <span>Loading</span>
+            </div>
+            <div class="line line-slow"></div>
+            <div class="line line-fast"></div>
+          </div>
+      </div>
+      <!-- Loading screen-->
+      <h1>Catalog</h1>
+      <div class="pages-container">
+        <span class="btn-pages pages-to-first">&lt;&lt;</span>
+        <span class="btn-pages pages-back">&lt;</span>
+        <span class="pages-current-page">1</span>
+        <span class="btn-pages pages-next">&gt;</span>
+        <span class="btn-pages pages-to-last">&gt&gt;</span>
+      </div>
+      <div class="options-container">
+        <div class="options-slot options-filter-items options-btn">
+          <span>Filter</span>
+          <div class="filter-list">
+            <input type="checkbox" id="cat01"><label for="cat01">Books</label><br>
+            <input type="checkbox" id="cat02"><label for="cat02">Coffee mugs</label><br>
+            <input type="checkbox" id="cat03"><label for="cat03">Instruments</label><br>
+            <input type="checkbox" id="cat04"><label for="cat04">Plants</label><br>
+            <button type="button" class="btn-blue filter-btn">Apply filter</button>
+          </div>
+        </div>
+        <div class="options-slot options-sort-items options-btn">
+          <span>Sort by</span>
+          <div class="sort-list">
+            <input type="radio" name="sort" id="sort01" checked><label for="sort01">A-Z</label><br>
+            <input type="radio" name="sort" id="sort02"><label for="sort02">Z-A</label><br>
+            <input type="radio" name="sort" id="sort03"><label for="sort03">Lowest price to Highest</label><br>
+            <input type="radio" name="sort" id="sort04"><label for="sort04">Highest price to Lowest</label>
+          </div>
+        </div>
+        <div class="options-slot options-page-quantity">
+          <span>Items per page:</span>
+          <select name="page-quantity" class="page-quantity">
+            <option class="sel-op" value="5">5</option>
+            <option class="sel-op" value="10">10</option>
+            <option class="sel-op" value="20">20</option>
+          </select>
+        </div>
+      </div>
+
+      <div class='shop-items'>
+
+      </div>
+      <h1>Cart</h1>
+      <div class='cart' id="cart">
+        <div class='cart-table'>
+        <div class='cart-row'>
+          <span class="cart-id cart-header cart-column">ID</span>
+          <span class="cart-item cart-header cart-column">ITEM</span>
+          <span class="cart-price cart-header cart-column">PRICE</span>
+          <span class="cart-quantity cart-header cart-column">QUANTITY</span>
+        </div>
+
+        <!-- New cart items are appended here -->
+        
+        </div>
+
+        <div class='cart-row cart-total'>
+          <span>Cart is empty</span>
+        </div>
+        <button type="button" class="purchase-btn btn-blue">Proceed to checkout</button>
+      </div>
+
+      <div class="checkout">
+        <h1>Checkout</h1>
+        <div class="checkout-container">
+          <div class="order-details">
+            <span><b>Enter your full name:*</b></span>
+            <input type="text" name="fullName" placeholder="John Doe" required><br>
+            <span><b>Enter your e-mail*</b></span>
+            <input type="e-mail" name="email" placeholder="person@someemail.com" required><br>
+            <span><b>Enter the shipping address:</b></span><br>
+            <span>Address line 1:*</span>
+            <input type="textbox" name="address-line-one" placeholder="Wonderland avenue 120" required><br>
+            <span>Address line 2:*</span>
+            <input type="textbox" name="address-line-two" placeholder="Wondertown, Wonderland" required><br>
+            <span style="font-size:0.8em">* - required fields</span>
+            <button type="button" class="order-send-btn btn-blue">Confirm order</button>
+          </div>
+          <div class="order-bill">
+            <h2>Bill:</h2>
+            <span>Item #01 x 1 ($9.99)</span><br>
+            <span>Item #03 x 2 ($5.50)</span><br>
+            <span class="bill-total"><b>Total: </b>$20.99</span>
+          </div>
+        </div>
+      
+      </div>
+      <div class="order-sent-text">
+        <h1>Order was sent</h1>
+        <span>Your order was sent. Thank you for consuming!</span>
+      </div>
+
+    </div>
+    <div class='footer'>
+      <span>FromMedToDev inc. 2019</span>
+    </div>
+  </body>
+</html>
