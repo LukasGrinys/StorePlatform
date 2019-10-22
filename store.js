@@ -3,13 +3,13 @@
 var store = {};
 // Load the catalog
 var catalog = [];
-store.requestCatalogData = function()  {
+store.requestCatalogData = function(itemsInPage, page, filters, sorting)  {
     $.ajax ({
         type: 'get',
         url: './lib/itemCatalog.json',
         success: function(response) {
             catalog = response;
-            store.loadCatalogItems();
+            store.loadCatalogItems(0, 0, filters, 0);
         }
     });
 }
@@ -22,49 +22,72 @@ var fullCatalogCount = 4;
 
 // Append all catalog items to the page
 //@TODO append the exact amount of items
-store.loadCatalogItems = function() {
+store.loadCatalogItems = function(itemsInPage, page, filters, sorting) {
     var catalogElement = document.getElementsByClassName('shop-items')[0];
+    // Deleting anything that was before
+    catalogElement.innerHTML = "";
     // Values for crafting the category icon source
     var categoryIconId = ["01","02","03","04"];
     var categoryTitles = ["Books","Coffee mugs","Instruments","Plants"];
-
+    // Editing the visible catalog
+    // - Filtering -
+    var categoryFilters = filtersApplied;
     for (let i = 0; i < catalog.length; i++) {
         let item = catalog[i];
-        // Craft the source url for the category icon
+        // Check if the item passes filter or the page settings 
         let category = item.category;
         let categoryIndex = categoryTitles.indexOf(category);
         let categoryId = categoryIconId[categoryIndex];
-        let iconSourceUrl = "icons/categories/cat" + categoryId + ".png";
-        // Craft the source url for the item image
-        let itemIdStr = item.id;
-        let itemIdNumber = itemIdStr.replace("#","");
-        let imageSourceUrl = "Items/item" + itemIdNumber + ".jpg";
+        if (categoryFilters.indexOf(categoryId) > -1 || categoryFilters.length == 0) {
+            // Craft the source url for the category icon
+            let iconSourceUrl = "icons/categories/cat" + categoryId + ".png";
+            // Craft the source url for the item image
+            let itemIdStr = item.id;
+            let itemIdNumber = itemIdStr.replace("#","");
+            let imageSourceUrl = "Items/item" + itemIdNumber + ".jpg";
 
-        // Append the item element
-        let itemContainer = document.createElement("DIV");
-        itemContainer.innerHTML = `<div class='item-id' id="item-id">${item.id}</div>
-        <span class="item-header">${item.name}</span>
-        <div class="category-icon">
-          <img src="${iconSourceUrl}">
-          <span class="category-text">${category}</span>
-        </div>
-        <img src="${imageSourceUrl}" alt="${item.altTitle}">
-        <span class="item-description">${item.description}</span>
-        <div class="item-details">
-          <span class="item-price">$${item.price}</span>
-          <button type="button" onclick="this.parentNode.querySelector('input[type=number]').stepDown()" class="number-change numberDec">-</button>
-          <input type="number" min="1" max="99" value="1">
-          <button type="button" onclick="this.parentNode.querySelector('input[type=number]').stepUp()" class="number-change numberInc">+</button>
-          <button type="button" class="btn-addToCart btn-blue">Add to cart</button>
-        </div>`;
-        itemContainer.classList.add('item-container');
-        catalogElement.appendChild(itemContainer);
-        // Append the button functions
-        store.addingButtonFunctions();
+            // Append the item element
+            let itemContainer = document.createElement("DIV");
+            itemContainer.innerHTML = `<div class='item-id' id="item-id">${item.id}</div>
+            <span class="item-header">${item.name}</span>
+            <div class="category-icon">
+            <img src="${iconSourceUrl}">
+            <span class="category-text">${category}</span>
+            </div>
+            <img src="${imageSourceUrl}" alt="${item.altTitle}">
+            <span class="item-description">${item.description}</span>
+            <div class="item-details">
+            <span class="item-price">$${item.price}</span>
+            <button type="button" onclick="this.parentNode.querySelector('input[type=number]').stepDown()" class="number-change numberDec">-</button>
+            <input type="number" min="1" max="99" value="1">
+            <button type="button" onclick="this.parentNode.querySelector('input[type=number]').stepUp()" class="number-change numberInc">+</button>
+            <button type="button" class="btn-addToCart btn-blue">Add to cart</button>
+            </div>`;
+            itemContainer.classList.add('item-container');
+            catalogElement.appendChild(itemContainer);
+            // Append the button functions
+            store.addingButtonFunctions();
+        }
     }
 }
-
-
+// Add the filterapplying function (applied filters - global variable, so the other displaying functions (sorting/paging) can use it)
+var filtersApplied = [];
+store.applyFilter = function() {
+    filtersApplied = [];
+    var filtersList = document.getElementsByClassName('filter-list')[0]
+    var filterCount = (filtersList.childElementCount - 1) / 3;
+    for (let i = 0; i < filterCount; i++) {
+        let filterToCheck = filtersList.getElementsByTagName('input')[i];
+        let filterName = filterToCheck.id;
+        if (filterToCheck.checked == true) {
+            var filterId = filterName.slice(3,5);
+            filtersApplied.push(filterId);
+        }
+    }
+    store.requestCatalogData(0,0, filtersApplied, 0);
+}
+var filterButton = document.getElementsByClassName('filter-btn')[0];
+filterButton.addEventListener('click',store.applyFilter);
 
 //
 store.ready = function() {
