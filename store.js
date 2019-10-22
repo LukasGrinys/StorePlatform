@@ -1,17 +1,34 @@
 // LOGIC FOR THE STORE PAGE
 
 var store = {};
-// Load the catalog
+// Load the catalog and form the categories data
 var catalog = [];
-store.requestCatalogData = function(itemsInPage, page, filters, sorting)  {
+
+// var categoryTitles = ["Books","Coffee mugs","Instruments","Plants"];
+var categoryTitles = [];
+var categoryIconId = ["01","02","03","04"];
+store.requestCatalogData = function()  {
+    // Request the product catalog
     $.ajax ({
         type: 'get',
-        url: './lib/itemCatalog.json',
+        url: './.data/itemCatalog.json',
         success: function(response) {
             catalog = response;
-            store.loadCatalogItems(0, 0, filters, 0);
+            store.loadCategories(catalog);
+            store.loadCatalogItems();
         }
     });
+}
+store.loadCategories = function(data) {
+    for (let i = 0; i < data.length; i++) {
+        item = data[i];
+        categoryName = item.category.trim().toLowerCase();
+        if (categoryTitles.indexOf(categoryName) > -1) {
+            // Then we continue;
+        } else {
+            categoryTitles.push(categoryName);
+        }
+    }
 }
 
 var pageNumber = 1;
@@ -22,25 +39,20 @@ var fullCatalogCount = 4;
 
 // Append all catalog items to the page
 //@TODO append the exact amount of items
-store.loadCatalogItems = function(itemsInPage, page, filters, sorting) {
+store.loadCatalogItems = function() {
     var catalogElement = document.getElementsByClassName('shop-items')[0];
     // Deleting anything that was before
     catalogElement.innerHTML = "";
-    // Values for crafting the category icon source
-    var categoryIconId = ["01","02","03","04"];
-    var categoryTitles = ["Books","Coffee mugs","Instruments","Plants"];
     // Editing the visible catalog
-    // - Filtering -
-    var categoryFilters = filtersApplied;
     for (let i = 0; i < catalog.length; i++) {
         let item = catalog[i];
         // Check if the item passes filter or the page settings 
         let category = item.category;
-        let categoryIndex = categoryTitles.indexOf(category);
-        let categoryId = categoryIconId[categoryIndex];
-        if (categoryFilters.indexOf(categoryId) > -1 || categoryFilters.length == 0) {
+        let categoryStringUntrimmed = category.toLowerCase();
+        let categoryString = categoryStringUntrimmed.replace(" ","")
+        if (filtersApplied.indexOf(categoryString) > -1 || filtersApplied.length == 0) {
             // Craft the source url for the category icon
-            let iconSourceUrl = "icons/categories/cat" + categoryId + ".png";
+            let iconSourceUrl = "icons/categories/" + categoryString + ".png";
             // Craft the source url for the item image
             let itemIdStr = item.id;
             let itemIdNumber = itemIdStr.replace("#","");
@@ -78,13 +90,14 @@ store.applyFilter = function() {
     var filterCount = (filtersList.childElementCount - 1) / 3;
     for (let i = 0; i < filterCount; i++) {
         let filterToCheck = filtersList.getElementsByTagName('input')[i];
-        let filterName = filterToCheck.id;
+        let filterClass = filterToCheck.className;
+        let filterWithCat = filterClass.trim().toLowerCase();
+        let filterName = filterWithCat.slice(4,filterWithCat.length);
         if (filterToCheck.checked == true) {
-            var filterId = filterName.slice(3,5);
-            filtersApplied.push(filterId);
+            filtersApplied.push(filterName);
         }
     }
-    store.requestCatalogData(0,0, filtersApplied, 0);
+    store.requestCatalogData();
 }
 var filterButton = document.getElementsByClassName('filter-btn')[0];
 filterButton.addEventListener('click',store.applyFilter);
