@@ -3,10 +3,12 @@
 var store = {};
 // Load the catalog and form the categories data
 var catalog = [];
+var pageConfig = {
+    categoryTitles : [],
+    sortingType : 0, // 0 - A-Z (default) 1 - Z-A; 2-Low-High; 3 - High-Low
+    itemsPerPage : document.getElementsByClassName('page-quantity')[0].value
+};
 
-// var categoryTitles = ["Books","Coffee mugs","Instruments","Plants"];
-var categoryTitles = [];
-var categoryIconId = ["01","02","03","04"];
 store.requestCatalogData = function()  {
     // Request the product catalog
     $.ajax ({
@@ -23,17 +25,13 @@ store.loadCategories = function(data) {
     for (let i = 0; i < data.length; i++) {
         item = data[i];
         categoryName = item.category.trim().toLowerCase();
-        if (categoryTitles.indexOf(categoryName) > -1) {
+        if (pageConfig.categoryTitles.indexOf(categoryName) > -1) {
             // Then we continue;
         } else {
-            categoryTitles.push(categoryName);
+            pageConfig.categoryTitles.push(categoryName);
         }
     }
 }
-
-var pageNumber = 1;
-var itemsPerPage = 5;
-var fullCatalogCount = 4;
 
 
 
@@ -43,7 +41,6 @@ store.loadCatalogItems = function() {
     var catalogElement = document.getElementsByClassName('shop-items')[0];
     // Deleting anything that was before
     catalogElement.innerHTML = "";
-    // Editing the visible catalog
     for (let i = 0; i < catalog.length; i++) {
         let item = catalog[i];
         // Check if the item passes filter or the page settings 
