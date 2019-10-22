@@ -238,6 +238,7 @@ h1 {
   background-color: white;
   color: black;
   position: absolute;
+  top: 24px;
   z-index: 2;
   width: 100%;
   padding: 5px;
@@ -302,6 +303,7 @@ h1 {
   background-color: white;
   color: black;
   position: absolute;
+  top: 24px;
   z-index: 2;
   width: 100%;
   padding: 5px;
@@ -591,6 +593,10 @@ input[type=number]::-webkit-outer-spin-button {
   border-radius: 7px;
   cursor: pointer;
   margin-top: 20px;
+}
+.purchase-btn a {
+  text-decoration: none;
+  color: white;
 }
 /* CHECKOUT */
 .checkout {

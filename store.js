@@ -1,14 +1,13 @@
 // LOGIC FOR THE STORE PAGE
-
 var store = {};
+
 // Load the catalog and form the categories data
 var catalog = [];
 var pageConfig = {
     categoryTitles : [],
-    sortingType : 0, // 0 - A-Z (default) 1 - Z-A; 2-Low-High; 3 - High-Low
+    sortingType : 3, // 0 - A-Z (default) 1 - Z-A; 2-Low-High; 3 - High-Low
     itemsPerPage : document.getElementsByClassName('page-quantity')[0].value
 };
-
 store.requestCatalogData = function()  {
     // Request the product catalog
     $.ajax ({
@@ -33,14 +32,89 @@ store.loadCategories = function(data) {
     }
 }
 
+// PAGE OPTION FUNCTIONS for sorting, filtering and displaying items
 
+// Add the filterapplying function (applied filters - global variable, so the other displaying functions (sorting/paging) can use it)
+var filtersApplied = [];
+store.applyFilter = function() {
+    filtersApplied = [];
+    var filtersList = document.getElementsByClassName('filter-list')[0]
+    var filterCount = (filtersList.childElementCount - 1) / 3;
+    for (let i = 0; i < filterCount; i++) {
+        let filterToCheck = filtersList.getElementsByTagName('input')[i];
+        let filterClass = filterToCheck.className;
+        let filterWithCat = filterClass.trim().toLowerCase();
+        let filterName = filterWithCat.slice(4,filterWithCat.length);
+        if (filterToCheck.checked == true) {
+            filtersApplied.push(filterName);
+        }
+    }
+    store.requestCatalogData();
+}
+var filterButton = document.getElementsByClassName('filter-btn')[0];
+filterButton.addEventListener('click',store.applyFilter);
+
+store.checkSortingType = function() {
+    var sort1 = document.getElementById('sort01').checked;
+    var sort2 = document.getElementById('sort02').checked;
+    var sort3 = document.getElementById('sort03').checked;
+    var sort4 = document.getElementById('sort04').checked;
+    if (sort1) {
+        pageConfig.sortingType = 0;
+    };
+    if (sort2) {
+        pageConfig.sortingType = 1;
+    };
+    if (sort3) {
+        pageConfig.sortingType = 2;
+    };
+    if (sort4) {
+        pageConfig.sortingType = 3;
+    };
+    // Re-load the items
+    store.requestCatalogData();
+}
+document.getElementsByClassName('sort-list')[0].addEventListener('change',store.checkSortingType);
 
 // Append all catalog items to the page
-//@TODO append the exact amount of items
 store.loadCatalogItems = function() {
     var catalogElement = document.getElementsByClassName('shop-items')[0];
     // Deleting anything that was before
     catalogElement.innerHTML = "";
+    // Sort the catalog
+    var sortingType = pageConfig.sortingType;
+    if (sortingType == 0) {
+        // A-Z
+        catalog.sort(function(a, b){
+            var x = a.name.toLowerCase();
+            var y = b.name.toLowerCase();
+            if (x < y) {return -1;}
+            if (x > y) {return 1;}
+            return 0;
+          });
+    };
+    if (sortingType == 1) {
+        // Z-A
+        catalog.sort(function(a, b){
+            var x = a.name.toLowerCase();
+            var y = b.name.toLowerCase();
+            if (x > y) {return -1;}
+            if (x < y) {return 1;}
+            return 0;
+          });
+    };
+    if (sortingType == 2) {
+        // Cheapest - Expensive
+        catalog.sort(function(a,b) {
+            return a.price - b.price
+        });
+    };
+    if (sortingType == 3) {
+        // Expensive - Cheapest
+        catalog.sort(function(a,b) {
+            return b.price - a.price;
+        });
+    };
     for (let i = 0; i < catalog.length; i++) {
         let item = catalog[i];
         // Check if the item passes filter or the page settings 
@@ -79,31 +153,11 @@ store.loadCatalogItems = function() {
         }
     }
 }
-// Add the filterapplying function (applied filters - global variable, so the other displaying functions (sorting/paging) can use it)
-var filtersApplied = [];
-store.applyFilter = function() {
-    filtersApplied = [];
-    var filtersList = document.getElementsByClassName('filter-list')[0]
-    var filterCount = (filtersList.childElementCount - 1) / 3;
-    for (let i = 0; i < filterCount; i++) {
-        let filterToCheck = filtersList.getElementsByTagName('input')[i];
-        let filterClass = filterToCheck.className;
-        let filterWithCat = filterClass.trim().toLowerCase();
-        let filterName = filterWithCat.slice(4,filterWithCat.length);
-        if (filterToCheck.checked == true) {
-            filtersApplied.push(filterName);
-        }
-    }
-    store.requestCatalogData();
-}
-var filterButton = document.getElementsByClassName('filter-btn')[0];
-filterButton.addEventListener('click',store.applyFilter);
 
 //
 store.ready = function() {
     // Loading functions
     store.requestCatalogData();
-
     // "Shopping" functions
     store.addingButtonFunctions();
     store.updateTotal();
