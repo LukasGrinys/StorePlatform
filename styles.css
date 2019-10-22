@@ -46,7 +46,7 @@ html, body {
   animation: rotate 2s infinite ease-in-out;
 }
 .line-fast {
-  animation: rotate 1s infinite ease-in-out; */
+  animation: rotate 1s infinite ease-in-out;
 }
 @keyframes rotate {
   from { transform: rotate(0);}
@@ -664,4 +664,7 @@ input[type=number]::-webkit-outer-spin-button {
   padding: 20px;
   text-align: center;
   border-top: rgba(0,0,0,0.5);
+}
+#demo {
+  display: none;
 }

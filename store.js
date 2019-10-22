@@ -1,50 +1,22 @@
 // LOGIC FOR THE STORE PAGE
 
 var store = {};
-// This is the demo catalog object to test out, if the browser can read the .js catalog
+// Load the catalog
 var catalog = [];
-
-//      
-catalog[0] = {
-    "id" : "#001",
-    "name" : "Cactus",
-    "category" : "Plants",
-    "imageSrc" : "Items/item01.jpg",
-    "altTitle" : "Cactus",
-    "description" : "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis ligula urna, dignissim sed tristique in, vulputate at ante.",
-    "price" : "9.99"
-};
-catalog[1] = {
-    "id" : "#002",
-    "name" : "Tasteful Book",
-    "category" : "Books",
-    "imageSrc" : "Items/item02.jpg",
-    "altTitle" : "Tasteful Book",
-    "description" : "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis ligula urna, dignissim sed tristique in, vulputate at ante.",
-    "price" : "15.99"
-};
-catalog[2] = {
-    "id" : "#003",
-    "name" : "White Coffee Mug",
-    "category" : "Coffee mugs",
-    "imageSrc" : "Items/item03.jpg",
-    "altTitle" : "White Mug",
-    "description" : "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis ligula urna, dignissim sed tristique in, vulputate at ante.",
-    "price" : "5.50"
-};
-catalog[3] = {
-    "id" : "#004",
-    "name" : "Acoustic Guitar",
-    "category" : "Instruments",
-    "imageSrc" : "Items/item04.jpg",
-    "altTitle" : "Acoustic Guitar",
-    "description" : "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis ligula urna, dignissim sed tristique in, vulputate at ante.",
-    "price" : "29.30"
-};
+store.requestCatalogData = function()  {
+    $.ajax ({
+        type: 'get',
+        url: './lib/itemCatalog.json',
+        success: function(response) {
+            catalog = response;
+            store.loadCatalogItems();
+        }
+    });
+}
 
 var pageNumber = 1;
 var itemsPerPage = 5;
-var fullCatalogCount = catalog.length;
+var fullCatalogCount = 4;
 
 
 
@@ -64,7 +36,8 @@ store.loadCatalogItems = function() {
         let categoryId = categoryIconId[categoryIndex];
         let iconSourceUrl = "icons/categories/cat" + categoryId + ".png";
         // Craft the source url for the item image
-        let itemIdNumber = item.id.replace("#","");
+        let itemIdStr = item.id;
+        let itemIdNumber = itemIdStr.replace("#","");
         let imageSourceUrl = "Items/item" + itemIdNumber + ".jpg";
 
         // Append the item element
@@ -93,15 +66,11 @@ store.loadCatalogItems = function() {
 
 
 
-
-
-
-
-
 //
 store.ready = function() {
     // Loading functions
-    store.loadCatalogItems();
+    store.requestCatalogData();
+
     // "Shopping" functions
     store.addingButtonFunctions();
     store.updateTotal();
