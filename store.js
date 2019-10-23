@@ -35,7 +35,7 @@ store.loadCategories = function(data) {
 
 // Loading screen functions
 store.closeLoadingScreen = function() {
-    setTimeout(function() { document.getElementsByClassName('loading-screen')[0].style.display = 'none';}, 200);
+    document.getElementsByClassName('loading-screen')[0].style.display = 'none';
     
 }
 store.openLoadingScreen = function() {
