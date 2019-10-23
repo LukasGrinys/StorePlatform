@@ -189,7 +189,10 @@ h1 {
   transition-duration: 0.3s;
   -webkit-transition-duration: 0.3s;
 }
-.pages-current-page {
+.pages-numbers {
+  display: flex;
+}
+.pages-page-number {
   width: 30px;
   height: 30px;
   text-align: center;
@@ -200,7 +203,20 @@ h1 {
   color: #87806D;
   background-color: white;
   margin: 2px;
+  cursor: pointer;
+}
+.selected-page {
+  box-shadow: 1px 1px 2px black;
+  color: rgb(75, 71, 61);
   cursor: default;
+}
+.pages-page-number.selected-page:hover {
+  background-color: white;
+}
+.pages-page-number:hover {
+  background-color: rgb(219, 207, 174);
+  transition-duration: 0.2s;
+  -webkit-transition-duration: 0.2s;
 }
 
 
