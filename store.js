@@ -16,6 +16,7 @@ store.requestCatalogData = function()  {
         success: function(response) {
             catalog = response;
             store.loadCategories(catalog);
+            store.closeLoadingScreen(); // it is opened by default and after changing product display options
             store.loadCatalogItems();
         }
     });
@@ -30,6 +31,15 @@ store.loadCategories = function(data) {
             pageConfig.categoryTitles.push(categoryName);
         }
     }
+}
+
+// Loading screen functions
+store.closeLoadingScreen = function() {
+    setTimeout(function() { document.getElementsByClassName('loading-screen')[0].style.display = 'none';}, 200);
+    
+}
+store.openLoadingScreen = function() {
+    document.getElementsByClassName('loading-screen')[0].style.display = 'flex';
 }
 
 // PAGE OPTION FUNCTIONS for sorting, filtering and displaying items
@@ -49,12 +59,14 @@ store.applyFilter = function() {
             filtersApplied.push(filterName);
         }
     }
+    store.openLoadingScreen(); // loading...
     store.requestCatalogData();
 }
 var filterButton = document.getElementsByClassName('filter-btn')[0];
 filterButton.addEventListener('click',store.applyFilter);
 
 store.checkSortingType = function() {
+    store.openLoadingScreen(); // Loading...
     var sort1 = document.getElementById('sort01').checked;
     var sort2 = document.getElementById('sort02').checked;
     var sort3 = document.getElementById('sort03').checked;
