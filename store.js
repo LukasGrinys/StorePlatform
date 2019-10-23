@@ -124,8 +124,57 @@ store.appendPageNumbers = function() {
             }
         };
     };
+    store.pageNumbers.bind();
 }
 
+// Give the page numbering elements their functions
+store.pageNumbers = {};
+store.pageNumbers.goToFirst = function() {
+    if (pageConfig.pageNumber !== 1) {
+        pageConfig.pageNumber;
+        store.requestCatalogData();
+    };
+}
+store.pageNumbers.goBack = function() {
+    if (pageConfig.pageNumber > 1) {
+        pageConfig.pageNumber--;
+        store.requestCatalogData();
+    };
+}
+store.pageNumbers.goToSpecificPage = function(n) {
+    if (n !== pageConfig.pageNumber) {
+        pageConfig.pageNumber = n;
+        store.requestCatalogData();
+    };
+ 
+}
+store.pageNumbers.goForward = function() {
+    if (pageConfig.pageNumber < pageConfig.pagesNeeded) {
+        pageConfig.pageNumber++;
+        store.requestCatalogData();
+    };
+}
+store.pageNumbers.goToLast = function() {
+    if (pageConfig.pageNumber !== pageConfig.pagesNeeded) {
+        pageConfig.pageNumber = pageConfig.pagesNeeded;
+        store.requestCatalogData();
+    }
+}
+// Bind the functions to their elements
+store.pageNumbers.bind = function() {
+    document.getElementsByClassName('pages-to-first')[0].addEventListener('click',store.pageNumbers.goToFirst);
+    document.getElementsByClassName('pages-back')[0].addEventListener('click', store.pageNumbers.goBack);
+    document.getElementsByClassName('pages-next')[0].addEventListener('click', store.pageNumbers.goForward);
+    document.getElementsByClassName('pages-to-last')[0].addEventListener('click', store.pageNumbers.goToLast);
+    var numberOfSquares = document.getElementsByClassName('pages-numbers')[0].childElementCount;
+    for (let i = 0; i < numberOfSquares; i++) {
+        var pageSquare = document.getElementsByClassName('pages-page-number')[i];
+        pageSquare.addEventListener('click', function() { 
+            var n = i + 1;
+            store.pageNumbers.goToSpecificPage(n);
+        });
+    }
+}
 
 
 // Append all catalog items to the page
