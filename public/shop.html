@@ -4,9 +4,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://fonts.googleapis.com/css?family=Nunito&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css?family=Quicksand&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/styles.css">
-    <script src="jquery.js"></script>
-    <script src="store.js" async></script>
+    <link type="image/x-icon" rel="icon" href="public/favicon.ico">
+    <link rel="stylesheet" type="text/css" href="public/styles.css">
+    <script src="public/jquery.js"></script>
+    <script type="text/javascript" charset="utf-8" src="public/store.js" async></script>
   </head>
   <body>
   <!-- Loading screen-->
@@ -40,7 +41,7 @@
           <span>Filter</span>
           <div class="filter-list">
             <input type="checkbox" id="cat01" class="cat-books"><label for="cat01">Books</label><br>
-            <input type="checkbox" id="cat02" class="cat-coffeeMugs"><label for="cat02">Coffee mugs</label><br>
+            <input type="checkbox" id="cat02" class="cat-coffee-mugs"><label for="cat02">Coffee mugs</label><br>
             <input type="checkbox" id="cat03" class="cat-instruments"><label for="cat03">Instruments</label><br>
             <input type="checkbox" id="cat04" class="cat-plants"><label for="cat04">Plants</label><br>
             <button type="button" class="btn-blue filter-btn">Apply filter</button>
@@ -91,19 +92,24 @@
       <div class="checkout" id="checkout">
         <h1>Checkout</h1>
         <div class="checkout-container">
-          <div class="order-details">
+          <form class="order-details" id="sendOrder" action="/api/orders" method="POST">
+            <div class="formError"></div>
             <span><b>Enter your full name:*</b></span>
-            <input type="text" name="fullName" placeholder="John Doe" required><br>
+            <input type="text" name="fullName" id="inputFullName" value="John Doe" required><br>
             <span><b>Enter your e-mail*</b></span>
-            <input type="e-mail" name="email" placeholder="person@someemail.com" required><br>
+            <input type="e-mail" name="email" id="inputEmail" value="person@someemail.com" required><br>
             <span><b>Enter the shipping address:</b></span><br>
             <span>Address line 1:*</span>
-            <input type="textbox" name="address-line-one" placeholder="Wonderland avenue 120" required><br>
-            <span>Address line 2:*</span>
-            <input type="textbox" name="address-line-two" placeholder="Wondertown, Wonderland" required><br>
+            <input type="textbox" name="address-line-one" id="inputAddOne" value="Wonderland avenue 120" required><br>
+            <span>Address line 2:</span>
+            <input type="textbox" name="address-line-two" id="inputAddTwo" value="Wondertown, Wonderland" required><br>
+            <div class="agreement-field">
+              <input type='checkbox' name="agreement" id="agreement" checked>
+              <label for="agreement">I agree with <a href="agreement.html" target="_blank">terms and agreements</a></label>
+            </div><br>
             <span style="font-size:0.8em">* - required fields</span>
-            <button type="button" class="order-send-btn btn-blue">Confirm order</button>
-          </div>
+            <button type="submit" class="order-send-btn btn-blue">Confirm order</button>
+          </form>
           <div class="order-bill">
             <h2>Bill:</h2>
             <span>Item #01 x 1 ($9.99)</span><br>
@@ -112,10 +118,6 @@
           </div>
         </div>
       
-      </div>
-      <div class="order-sent-text">
-        <h1>Order was sent</h1>
-        <span>Your order was sent. Thank you for consuming!</span>
       </div>
 
     </div>

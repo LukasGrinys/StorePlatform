@@ -645,6 +645,14 @@ input[type=number]::-webkit-outer-spin-button {
   height: 100px;
   padding: 0 5px;
 }
+.order-details .agreement-field {
+  display: flex;
+  font-size: 0.8em;
+  justify-content: flex-start;
+}
+.order-details .agreement-field input[type='checkbox'] {
+  flex: 10%;
+}
 .order-bill {
   margin-bottom: 20px;
   background-color: white;
@@ -677,10 +685,34 @@ input[type=number]::-webkit-outer-spin-button {
   margin-top: 20px;
 }
 
-.order-sent-text {
+.formError {
   display:none;
+  font-size: 0.7em;
+  background-color:rgb(199, 100, 70);
+  padding: 10px;
+  color: white;
+  width: 250px;
+  margin-bottom: 5px;
 }
 
+/* Order sent text */
+.order-sent-text {
+  text-align: center;
+  padding: 15px;
+}
+.btn-toStore {
+  padding: 10px;
+  font-size: 1.5em;
+  border-radius: 3px;
+  margin-top: 15px;
+  cursor: pointer;
+  outline: none;
+}
+.btn-toStore a {
+  text-decoration: none;
+  color: white;
+  font-family: "Nunito", sans-serif;
+}
 
 /* FOOTER */
 .footer {

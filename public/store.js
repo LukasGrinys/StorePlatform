@@ -6,18 +6,18 @@ var catalog = [];
 var pageConfig = {
     categoryTitles : [],
     sortingType : 0, // 0 - A-Z (default) 1 - Z-A; 2-Low-High; 3 - High-Low
-    itemsPerPage : document.getElementsByClassName('page-quantity')[0].value,
+    itemsPerPage : 5,
     pageNumber : 1,
     pagesNeeded : 1
 };
-
+var orderInfo = [];
 store.requestCatalogData = function()  {
     // Request the product catalog
     $.ajax ({
         type: 'get',
-        url: './.data/itemCatalog.json',
+        url: 'public/itemCatalog.json',
         success: function(response) {
-            catalog = response;
+            catalog = JSON.parse(response);
             if (catalog.length % pageConfig.itemsPerPage == 0) {
                 pageConfig.pagesNeeded = catalog.length / pageConfig.itemsPerPage;
             } else {
@@ -33,7 +33,7 @@ store.requestCatalogData = function()  {
 store.loadCategories = function(data) {
     for (let i = 0; i < data.length; i++) {
         item = data[i];
-        categoryName = item.category.trim().toLowerCase();
+        categoryName = item.category.toLowerCase();
         if (pageConfig.categoryTitles.indexOf(categoryName) > -1) {
             // Then we continue;
         } else {
@@ -62,10 +62,10 @@ store.applyFilter = function() {
     for (let i = 0; i < filterCount; i++) {
         let filterToCheck = filtersList.getElementsByTagName('input')[i];
         let filterClass = filterToCheck.className;
-        let filterWithCat = filterClass.trim().toLowerCase();
-        let filterName = filterWithCat.slice(4,filterWithCat.length);
+        let filterName = filterClass.toLowerCase().slice(4,filterClass.length);
+        let filterNameFixed = filterName.replace("-"," ");
         if (filterToCheck.checked == true) {
-            filtersApplied.push(filterName);
+            filtersApplied.push(filterNameFixed);
         }
     }
     store.openLoadingScreen(); // loading...
@@ -186,8 +186,8 @@ store.loadCatalogItems = function() {
     // Filter out the catalog;
     var filteredCatalog = [];
     for (let i = 0; i < catalog.length; i++) {
-        let itemCategory = catalog[i].category.toLowerCase();
-        if (pageConfig.categoryTitles.indexOf(itemCategory) > - 1 || pageConfig.categoryTitles.length == 0) {
+        let itemCategory = catalog[i].category.toLowerCase().trim();
+        if (filtersApplied.indexOf(itemCategory) > - 1 || filtersApplied.length == 0) {
             filteredCatalog.push(catalog[i]);
         }
     };
@@ -236,11 +236,11 @@ store.loadCatalogItems = function() {
         let categoryStringUntrimmed = category.toLowerCase();
         let categoryString = categoryStringUntrimmed.replace(" ","")
         // Craft the source url for the category icon
-        let iconSourceUrl = "icons/categories/" + categoryString + ".png";
+        let iconSourceUrl = "public/icons/categories/" + categoryString + ".png";
             // Craft the source url for the item image
         let itemIdStr = item.id;
         let itemIdNumber = itemIdStr.replace("#","");
-        let imageSourceUrl = "Items/item" + itemIdNumber + ".jpg";
+        let imageSourceUrl = "public/Items/item" + itemIdNumber + ".jpg";
         // Append the item element
         let itemContainer = document.createElement("DIV");
         itemContainer.innerHTML = `<div class='item-id' id="item-id">${item.id}</div>
@@ -421,6 +421,14 @@ store.proceedToCheckout = function(){
         var cartItemPrice = document.getElementsByClassName('cart-price')[i+1].innerText;
         // Form the text
         str += '<span>' + cartItemName + ' x ' + cartQuantity + ' (' + cartItemPrice + ')</span><br>';
+
+        // Form the orderInfo array of objects to be sent later as payload
+        var itemJSON = {
+            'name' : cartItemName,
+            'quantity' : cartQuantity,
+            'price' : cartItemPrice 
+        };
+        orderInfo.push(itemJSON);
     };
     // Get the total
     var totalStr = document.getElementsByClassName('cart-total')[0].innerText;
@@ -460,3 +468,150 @@ store.updateFloatingCart = function() {
 store.ready();
 var proceedToCheckoutButton = document.getElementsByClassName('purchase-btn')[0];
 proceedToCheckoutButton.addEventListener('click',store.proceedToCheckout);
+
+// Confirming the details with order
+store.sendOrder = function(event) {
+    // preventing the submitting and collecting values
+    event.preventDefault();
+    var formId = this.id; // sendOrder
+    var path = this.action; // api/orders
+    var method = "POST"; // POST
+
+    var errorBlock = document.getElementsByClassName('formError')[0];
+    errorBlock.style.display = 'none';
+    // Turn the inputs into a payload
+    var payload = {};
+    // Collect the values
+    var fullName = document.getElementById('inputFullName').value;
+    var email = document.getElementById('inputEmail').value;
+    var addressLineOne = document.getElementById('inputAddOne').value;
+    var addressLineTwo = document.getElementById('inputAddOne').value;
+    var agreement = document.getElementById('agreement').checked ? true : false;
+    // Check if the values are correct
+    fullName = fullName.length > 0 && typeof(fullName) == 'string' ? fullName : false;
+    email = email.indexOf("@") > -1 && email.indexOf(".") > -1 && email.length > 0 && typeof(email) == 'string' ? email : false;
+    addressLineOne = typeof(addressLineOne) == 'string' && addressLineOne.length > 0 ? addressLineOne : false;
+    addressLineTwo = addressLineTwo.length == 0 ? " " : addressLineTwo;
+
+    // Put values into payload
+    if (fullName && email && addressLineOne && agreement) {
+        payload.fullName = fullName;
+        payload.email = email;
+        payload.addressLineOne = addressLineOne;
+        payload.addressLineTwo = addressLineTwo;
+        payload.agreement = agreement;
+        payload.order = orderInfo; // collect the orderInfo object formed earlier
+        // Send the order
+        var xhr = new XMLHttpRequest();
+        xhr.open('POST', 'api/orders', true);
+        console.log("Request made");
+        xhr.setRequestHeader("Content-type", "application/json");
+        xhr.onreadystatechange = function() {
+            if(xhr.readyState == XMLHttpRequest.DONE) {
+                var statusCode = xhr.status;
+                var responseReturned = xhr.responseText;
+                window.location = '/orderSent';
+            // Callback if requested
+            if(callback){
+                try {
+                    var parsedResponse = JSON.parse(responseReturned);
+                    callback(statusCode,parsedResponse);
+
+                } catch(e){
+                callback(statusCode,false);
+                }
+            }
+            }
+        }
+        // Send the payload as JSON
+        var payloadString = JSON.stringify(payload);
+        xhr.send(payloadString);
+    } else {
+        // Display an error
+        errorBlock.style.display = 'block';
+        errorBlock.innerText = "Please fill out all the required fields";
+        // Mark the missing forms:
+        var errBorder = "1px solid #FF7E57";
+        var defBorder = "1px solid grey";
+        if (!fullName) { 
+            document.getElementById('inputFullName').style.border = errBorder; 
+        } else {
+            document.getElementById('inputFullName').style.border = defBorder; 
+        };
+        if (!email) { 
+            document.getElementById('inputEmail').style.border = errBorder; 
+        } else {
+            document.getElementById('inputEmail').style.border = defBorder; 
+        };
+        if (!addressLineOne) { 
+            document.getElementById('inputAddOne').style.border = errBorder; 
+        } else {
+            document.getElementById('inputAddOne').style.border = defBorder; 
+        };
+    };
+}
+document.getElementsByClassName('order-send-btn')[0].addEventListener('click', store.sendOrder);
+
+//
+//
+// 
+// Interface for making API calls
+store.request = function(headers,path,method,queryStringObject,payload,callback){
+    // Set defaults
+    headers = typeof(headers) == 'object' && headers !== null ? headers : {};
+    path = typeof(path) == 'string' ? path : '/';
+    method = typeof(method) == 'string' && ['POST','GET','PUT','DELETE'].indexOf(method.toUpperCase()) > -1 ? method.toUpperCase() : 'GET';
+    queryStringObject = typeof(queryStringObject) == 'object' && queryStringObject !== null ? queryStringObject : {};
+    payload = typeof(payload) == 'object' && payload !== null ? payload : {};
+    callback = typeof(callback) == 'function' ? callback : false;
+    // For each query string parameter sent, add it to the path
+    var requestUrl = path+'?';
+    var counter = 0;
+    for(var queryKey in queryStringObject){
+       if(queryStringObject.hasOwnProperty(queryKey)){
+         counter++;
+         // If at least one query string parameter has already been added, preprend new ones with an ampersand
+         if(counter > 1){
+           requestUrl+='&';
+         }
+         // Add the key and value
+         requestUrl+=queryKey+'='+queryStringObject[queryKey];
+       }
+    }
+    // Form the http request as a JSON type
+    var xhr = new XMLHttpRequest();
+    xhr.open(method, requestUrl, true);
+    xhr.setRequestHeader("Content-type", "application/json");
+    // For each header sent, add it to the request
+    for(var headerKey in headers){
+       if(headers.hasOwnProperty(headerKey)){
+         xhr.setRequestHeader(headerKey, headers[headerKey]);
+       }
+    }
+    // If there is a current session token set, add that as a header
+    //if(store.config.sessionToken){
+    //  xhr.setRequestHeader("token", store.config.sessionToken.id);
+    //}
+    // When the request comes back, handle the response
+    xhr.onreadystatechange = function() {
+        if(xhr.readyState == XMLHttpRequest.DONE) {
+          var statusCode = xhr.status;
+          var responseReturned = xhr.responseText;
+          // Callback if requested
+          if(callback){
+            try{
+                console.log(responseReturned);
+              var parsedResponse = JSON.parse(responseReturned);
+              callback(statusCode,parsedResponse);
+            } catch(e){
+              callback(statusCode,false);
+
+            }
+          }
+        }
+    }
+    // Send the payload as JSON
+    var payloadString = JSON.stringify(payload);
+    xhr.send(payloadString);
+};
+
