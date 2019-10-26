@@ -1,6 +1,6 @@
 // LOGIC FOR THE STORE PAGE
 var store = {};
-
+// TODO : Set the cookies/localStorage (save orderInfo); Make a login form for users in the future // Headers and footers
 // Load the catalog and form the categories data
 var catalog = [];
 var pageConfig = {
@@ -10,6 +10,7 @@ var pageConfig = {
     pageNumber : 1,
     pagesNeeded : 1
 };
+
 var orderInfo = [];
 store.requestCatalogData = function()  {
     // Request the product catalog
@@ -44,11 +45,14 @@ store.loadCategories = function(data) {
 
 // Loading screen functions
 store.closeLoadingScreen = function() {
-    document.getElementsByClassName('loading-screen')[0].style.display = 'none';
-    
+    if (document.getElementsByClassName('loading-screen')[0]) {
+        document.getElementsByClassName('loading-screen')[0].style.display = 'none';
+    };
 }
 store.openLoadingScreen = function() {
-    document.getElementsByClassName('loading-screen')[0].style.display = 'flex';
+    if (document.getElementsByClassName('loading-screen')[0]) {
+        document.getElementsByClassName('loading-screen')[0].style.display = 'flex';
+    };
 }
 
 // PAGE OPTION FUNCTIONS for sorting, filtering and displaying items
@@ -71,8 +75,10 @@ store.applyFilter = function() {
     store.openLoadingScreen(); // loading...
     store.requestCatalogData();
 }
-var filterButton = document.getElementsByClassName('filter-btn')[0];
-filterButton.addEventListener('click',store.applyFilter);
+if (document.getElementsByClassName('filter-btn')[0]) {
+    var filterButton = document.getElementsByClassName('filter-btn')[0];
+    filterButton.addEventListener('click',store.applyFilter);
+};
 
 store.checkSortingType = function() {
     store.openLoadingScreen(); // Loading...
@@ -95,36 +101,42 @@ store.checkSortingType = function() {
     // Re-load the items
     store.requestCatalogData();
 }
-document.getElementsByClassName('sort-list')[0].addEventListener('change',store.checkSortingType);
+if (document.getElementsByClassName('sort-list')[0]) {
+    document.getElementsByClassName('sort-list')[0].addEventListener('change',store.checkSortingType);
+};
 
 // Update ItemsPerPage value
 store.updateItemsPerPage = function() {
     store.openLoadingScreen(); // Loading..
     pageConfig.itemsPerPage = document.getElementsByClassName('page-quantity')[0].value;
 }
-document.getElementsByClassName('page-quantity')[0].addEventListener('change',store.updateItemsPerPage);
-document.getElementsByClassName('page-quantity')[0].addEventListener('change',store.requestCatalogData);
+if (document.getElementsByClassName('page-quantity')[0]) {
+    document.getElementsByClassName('page-quantity')[0].addEventListener('change',store.updateItemsPerPage);
+    document.getElementsByClassName('page-quantity')[0].addEventListener('change',store.requestCatalogData);
+};
 
 // Append page number elements
 store.appendPageNumbers = function() {
     var pageNumberContainer = document.getElementsByClassName('pages-numbers')[0];
-    pageNumberContainer.innerHTML = "";
-    var pageCount = pageConfig.pagesNeeded;
-    if (pageCount == 1) {
-        document.getElementsByClassName('pages-container')[0].style.display = "none";
-    } else {
-        document.getElementsByClassName('pages-container')[0].style.display = "flex";
-        for (let i = 0; i < pageCount; i++) {
-            if (pageConfig.pageNumber == i + 1) {
-                let pageSquare = `<span class="pages-page-number selected-page">${i+1}</span>`;
-                pageNumberContainer.innerHTML += pageSquare;
-            } else {
-                let pageSquare = `<span class="pages-page-number">${i+1}</span>`;
-                pageNumberContainer.innerHTML += pageSquare;
-            }
+    if (pageNumberContainer) {
+        pageNumberContainer.innerHTML = "";
+        var pageCount = pageConfig.pagesNeeded;
+        if (pageCount == 1) {
+            document.getElementsByClassName('pages-container')[0].style.display = "none";
+        } else {
+            document.getElementsByClassName('pages-container')[0].style.display = "flex";
+            for (let i = 0; i < pageCount; i++) {
+                if (pageConfig.pageNumber == i + 1) {
+                    let pageSquare = `<span class="pages-page-number selected-page">${i+1}</span>`;
+                    pageNumberContainer.innerHTML += pageSquare;
+                } else {
+                    let pageSquare = `<span class="pages-page-number">${i+1}</span>`;
+                    pageNumberContainer.innerHTML += pageSquare;
+                }
+            };
         };
+        store.pageNumbers.bind();
     };
-    store.pageNumbers.bind();
 }
 
 // Give the page numbering elements their functions
@@ -180,89 +192,91 @@ store.pageNumbers.bind = function() {
 // Append all catalog items to the page
 store.loadCatalogItems = function() {
     var catalogElement = document.getElementsByClassName('shop-items')[0];
-    // Deleting anything that was before
-    catalogElement.innerHTML = "";
-    store.openLoadingScreen(); // Loading...
-    // Filter out the catalog;
-    var filteredCatalog = [];
-    for (let i = 0; i < catalog.length; i++) {
-        let itemCategory = catalog[i].category.toLowerCase().trim();
-        if (filtersApplied.indexOf(itemCategory) > - 1 || filtersApplied.length == 0) {
-            filteredCatalog.push(catalog[i]);
+    if (catalogElement) {
+        // Deleting anything that was before
+        catalogElement.innerHTML = "";
+        store.openLoadingScreen(); // Loading...
+        // Filter out the catalog;
+        var filteredCatalog = [];
+        for (let i = 0; i < catalog.length; i++) {
+            let itemCategory = catalog[i].category.toLowerCase().trim();
+            if (filtersApplied.indexOf(itemCategory) > - 1 || filtersApplied.length == 0) {
+                filteredCatalog.push(catalog[i]);
+            }
+        };
+        // Sort the catalog
+        var sortingType = pageConfig.sortingType;
+        if (sortingType == 0) {
+            // A-Z
+            filteredCatalog.sort(function(a, b){
+                var x = a.name.toLowerCase();
+                var y = b.name.toLowerCase();
+                if (x < y) {return -1;}
+                if (x > y) {return 1;}
+                return 0;
+            });
+        };
+        if (sortingType == 1) {
+            // Z-A
+            filteredCatalog.sort(function(a, b){
+                var x = a.name.toLowerCase();
+                var y = b.name.toLowerCase();
+                if (x > y) {return -1;}
+                if (x < y) {return 1;}
+                return 0;
+            });
+        };
+        if (sortingType == 2) {
+            // Cheapest - Expensive
+            filteredCatalog.sort(function(a,b) {
+                return a.price - b.price
+            });
+        };
+        if (sortingType == 3) {
+            // Expensive - Cheapest
+            filteredCatalog.sort(function(a,b) {
+                return b.price - a.price;
+            });
+        };
+        // Cut the catalog according to the page number and itemsPerPage value
+        var itemsPerPage = pageConfig.itemsPerPage;
+        var page = pageConfig.pageNumber;
+        var slicedCatalog = filteredCatalog.slice(itemsPerPage*(page - 1), (itemsPerPage)*(page - 1) + itemsPerPage);
+        for (let i = 0; i < slicedCatalog.length; i++) {
+            let item = slicedCatalog[i];
+            // Check if the item passes filter or the page settings 
+            let category = item.category;
+            let categoryStringUntrimmed = category.toLowerCase();
+            let categoryString = categoryStringUntrimmed.replace(" ","")
+            // Craft the source url for the category icon
+            let iconSourceUrl = "public/icons/categories/" + categoryString + ".png";
+                // Craft the source url for the item image
+            let itemIdStr = item.id;
+            let itemIdNumber = itemIdStr.replace("#","");
+            let imageSourceUrl = "public/Items/item" + itemIdNumber + ".jpg";
+            // Append the item element
+            let itemContainer = document.createElement("DIV");
+            itemContainer.innerHTML = `<div class='item-id' id="item-id">${item.id}</div>
+                <span class="item-header">${item.name}</span>
+                <div class="category-icon">
+                <img src="${iconSourceUrl}">
+                <span class="category-text">${category}</span>
+                </div>
+                <img src="${imageSourceUrl}" alt="${item.altTitle}">
+                <span class="item-description">${item.description}</span>
+                <div class="item-details">
+                <span class="item-price">$${item.price}</span>
+                <button type="button" onclick="this.parentNode.querySelector('input[type=number]').stepDown()" class="number-change numberDec">-</button>
+                <input type="number" min="1" max="99" value="1">
+                <button type="button" onclick="this.parentNode.querySelector('input[type=number]').stepUp()" class="number-change numberInc">+</button>
+                <button type="button" class="btn-addToCart btn-blue">Add to cart</button>
+                </div>`;
+            itemContainer.classList.add('item-container');
+            catalogElement.appendChild(itemContainer);
+            // Append the button functions
+            store.addingButtonFunctions();
         }
     };
-    // Sort the catalog
-    var sortingType = pageConfig.sortingType;
-    if (sortingType == 0) {
-        // A-Z
-        filteredCatalog.sort(function(a, b){
-            var x = a.name.toLowerCase();
-            var y = b.name.toLowerCase();
-            if (x < y) {return -1;}
-            if (x > y) {return 1;}
-            return 0;
-          });
-    };
-    if (sortingType == 1) {
-        // Z-A
-        filteredCatalog.sort(function(a, b){
-            var x = a.name.toLowerCase();
-            var y = b.name.toLowerCase();
-            if (x > y) {return -1;}
-            if (x < y) {return 1;}
-            return 0;
-          });
-    };
-    if (sortingType == 2) {
-        // Cheapest - Expensive
-        filteredCatalog.sort(function(a,b) {
-            return a.price - b.price
-        });
-    };
-    if (sortingType == 3) {
-        // Expensive - Cheapest
-        filteredCatalog.sort(function(a,b) {
-            return b.price - a.price;
-        });
-    };
-    // Cut the catalog according to the page number and itemsPerPage value
-    var itemsPerPage = pageConfig.itemsPerPage;
-    var page = pageConfig.pageNumber;
-    var slicedCatalog = filteredCatalog.slice(itemsPerPage*(page - 1), (itemsPerPage)*(page - 1) + itemsPerPage);
-    for (let i = 0; i < slicedCatalog.length; i++) {
-        let item = slicedCatalog[i];
-        // Check if the item passes filter or the page settings 
-        let category = item.category;
-        let categoryStringUntrimmed = category.toLowerCase();
-        let categoryString = categoryStringUntrimmed.replace(" ","")
-        // Craft the source url for the category icon
-        let iconSourceUrl = "public/icons/categories/" + categoryString + ".png";
-            // Craft the source url for the item image
-        let itemIdStr = item.id;
-        let itemIdNumber = itemIdStr.replace("#","");
-        let imageSourceUrl = "public/Items/item" + itemIdNumber + ".jpg";
-        // Append the item element
-        let itemContainer = document.createElement("DIV");
-        itemContainer.innerHTML = `<div class='item-id' id="item-id">${item.id}</div>
-            <span class="item-header">${item.name}</span>
-            <div class="category-icon">
-            <img src="${iconSourceUrl}">
-            <span class="category-text">${category}</span>
-            </div>
-            <img src="${imageSourceUrl}" alt="${item.altTitle}">
-            <span class="item-description">${item.description}</span>
-            <div class="item-details">
-            <span class="item-price">$${item.price}</span>
-            <button type="button" onclick="this.parentNode.querySelector('input[type=number]').stepDown()" class="number-change numberDec">-</button>
-            <input type="number" min="1" max="99" value="1">
-            <button type="button" onclick="this.parentNode.querySelector('input[type=number]').stepUp()" class="number-change numberInc">+</button>
-            <button type="button" class="btn-addToCart btn-blue">Add to cart</button>
-            </div>`;
-        itemContainer.classList.add('item-container');
-        catalogElement.appendChild(itemContainer);
-        // Append the button functions
-        store.addingButtonFunctions();
-    }
 }
 
 //
@@ -365,34 +379,36 @@ store.appendUpdateTotal = function() {
 store.updateTotal = function() {
     var total = 0;
     var cartItems = document.getElementsByClassName('cart-table')[0];
-    var count = cartItems.childElementCount - 1;
-    for (let i = 0; i < count; i++) {
-        // Get item quantity
-        var cartQuantityElement = document.getElementsByClassName('cart-quantity-number')[i];
-        var cartQuantity = cartQuantityElement.value;
-        // Get item price
-        var cartItemPrice = document.getElementsByClassName('cart-price')[i+1].innerText;
-        var priceNumber = cartItemPrice.replace("$","");
-        // Multiply the numbers, add up to total;
-        var priceRow = Number(cartQuantity) * Number(priceNumber)
-        total += priceRow;
+    if (cartItems) {
+        var count = cartItems.childElementCount - 1;
+        for (let i = 0; i < count; i++) {
+            // Get item quantity
+            var cartQuantityElement = document.getElementsByClassName('cart-quantity-number')[i];
+            var cartQuantity = cartQuantityElement.value;
+            // Get item price
+            var cartItemPrice = document.getElementsByClassName('cart-price')[i+1].innerText;
+            var priceNumber = cartItemPrice.replace("$","");
+            // Multiply the numbers, add up to total;
+            var priceRow = Number(cartQuantity) * Number(priceNumber)
+            total += priceRow;
+        };
+        total = parseFloat(total).toFixed(2);
+        var totalStr = total.toString();
+        var pointPosition = totalStr.indexOf(".");
+        var decimalParts = totalStr.slice(pointPosition,totalStr.length);
+        if (decimalParts.length == 1) {
+            totalStr += "0";
+        };
+        if (decimalParts.length == 0) {
+            totalStr += ".00";
+        };
+        var totalElement = document.getElementsByClassName('cart-total')[0];
+        if (totalStr == "0.00") {
+            totalElement.innerHTML = `<span>Cart is empty</span>`;
+        } else {
+            totalElement.innerHTML = `<span><b>Total: </b>$${totalStr}</span>`;
+        }
     };
-    total = parseFloat(total).toFixed(2);
-    var totalStr = total.toString();
-    var pointPosition = totalStr.indexOf(".");
-    var decimalParts = totalStr.slice(pointPosition,totalStr.length);
-    if (decimalParts.length == 1) {
-        totalStr += "0";
-    };
-    if (decimalParts.length == 0) {
-        totalStr += ".00";
-    };
-    var totalElement = document.getElementsByClassName('cart-total')[0];
-    if (totalStr == "0.00") {
-        totalElement.innerHTML = `<span>Cart is empty</span>`;
-    } else {
-        totalElement.innerHTML = `<span><b>Total: </b>$${totalStr}</span>`;
-    }
 }
 
 // Showing the Checkout section and forming an order bill
@@ -439,35 +455,41 @@ store.proceedToCheckout = function(){
 
 store.updateFloatingCart = function() {
     var floatingCart = document.getElementsByClassName('floating-cart-text')[0];
-    // Count the items x quantity
-    var itemsInCart = document.getElementsByClassName('cart-row').length - 2;
-    var itemCount = 0;
-    for (let i = 0; i < itemsInCart; i++) {
-        let itemQuantity = document.getElementsByClassName('cart-quantity-number')[i].value;
-        itemCount += Number(itemQuantity);
-    };
-    // Update cart text
-    if (itemCount == 0) {
-        floatingCart.innerText = "Cart";
-    } else if (itemCount == 1) {
-        floatingCart.innerText = "1 item";
-    } else {
-        floatingCart.innerText = itemCount + " items";
-    };
-    // Set smaller font size for larger number
-    var floatingCartElement = document.getElementsByClassName('floating-cart')[0];
-    if (itemCount > 99) {
-        floatingCartElement.style.fontSize = "0.75em";
-        floatingCartElement.style.padding = "10px";
-    } else {
-        floatingCartElement.style.fontSize = "1em";
-        floatingCartElement.style.padding = "8px";
+    if (floatingCart) {
+        // Count the items x quantity
+        var itemsInCart = document.getElementsByClassName('cart-row').length - 2;
+        var itemCount = 0;
+        for (let i = 0; i < itemsInCart; i++) {
+            let itemQuantity = document.getElementsByClassName('cart-quantity-number')[i].value;
+            itemCount += Number(itemQuantity);
+        };
+        // Update cart text
+        if (itemCount == 0) {
+            floatingCart.innerText = "Cart";
+        } else if (itemCount == 1) {
+            floatingCart.innerText = "1 item";
+        } else {
+            floatingCart.innerText = itemCount + " items";
+        };
+        // Set smaller font size for larger number
+        var floatingCartElement = document.getElementsByClassName('floating-cart')[0];
+        if (itemCount > 99) {
+            floatingCartElement.style.fontSize = "0.75em";
+            floatingCartElement.style.padding = "10px";
+        } else {
+            floatingCartElement.style.fontSize = "1em";
+            floatingCartElement.style.padding = "8px";
+        };
     };
 }
 
 store.ready();
+
+// Append proceedToCheckout function
 var proceedToCheckoutButton = document.getElementsByClassName('purchase-btn')[0];
-proceedToCheckoutButton.addEventListener('click',store.proceedToCheckout);
+if (proceedToCheckoutButton) {
+    proceedToCheckoutButton.addEventListener('click',store.proceedToCheckout);
+};
 
 // Confirming the details with order
 store.sendOrder = function(event) {
@@ -550,7 +572,9 @@ store.sendOrder = function(event) {
         };
     };
 }
-document.getElementsByClassName('order-send-btn')[0].addEventListener('click', store.sendOrder);
+if (document.getElementsByClassName('order-send-btn')[0]) {
+    document.getElementsByClassName('order-send-btn')[0].addEventListener('click', store.sendOrder);
+};
 
 //
 //
