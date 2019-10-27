@@ -28,7 +28,7 @@
     <div class="navigation-bar">
       <div class="logo"></div>
       <a href="/">Store</a>
-      <a href="#">Check order</a>
+      <a href="/checkOrder">Check order</a>
       <a href="#">Management</a>
     </div>
     <div class="demo" id="demo"></div>
@@ -99,7 +99,7 @@
       <div class="checkout" id="checkout">
         <h1>Checkout</h1>
         <div class="checkout-container">
-          <form class="order-details" id="sendOrder" action="/api/orders" method="POST">
+          <form class="order-details" id="sendOrder" action="/api/orders/send" method="POST">
             <div class="formError"></div>
             <span><b>Enter your full name:*</b></span>
             <input type="text" name="fullName" id="inputFullName" value="John Doe" required><br>

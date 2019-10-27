@@ -749,3 +749,27 @@ input[type=number]::-webkit-outer-spin-button {
 #demo {
   display: none;
 }
+
+/* CHECK ORDER PAGE */
+.check-order {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+.btn-checkOrder {
+  width: 80px;
+  padding: 10px;
+  font-size: 1em;
+  border-radius: 2px;
+  cursor: pointer;
+}
+.responseBox {
+  width: 200px;
+  margin: 10px 0;
+  border: 1px solid black;
+  padding: 15px;
+  background-color: white;
+  display: none;
+}

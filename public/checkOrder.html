@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css?family=Nunito&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Quicksand&display=swap" rel="stylesheet">
+    <link type="image/x-icon" rel="icon" href="public/favicon.ico">
+    <link rel="stylesheet" type="text/css" href="public/styles.css">
+    <script src="public/jquery.js"></script>
+    <script type="text/javascript" charset="utf-8" src="public/store.js" async></script>
+  </head>
+  <body>
+    <div class='header'>
+      <span>FICTIONAL STORE</span>
+    </div>
+    <div class="navigation-bar">
+        <div class="logo"></div>
+        <a href="/">Store</a>
+        <a href="/checkOrder">Check order</a>
+        <a href="#">Management</a>
+      </div>
+    <div class='container'>
+      <h1>Check your order status</h1>
+      <form class="check-order" id="checkOrder" action="/api/orders/check" method="GET">
+        <span>Enter your 10-digit order ID that was sent to your e-mail:</span><br>
+        <input type="number" name="orderId" id="orderId"><br>
+        <button type="submit" class="btn-blue btn-checkOrder">Check</button><br>
+        <div class="responseBox"></div>
+      </form>
+
+    </div>
+    <div class='footer'>
+      <span>FromMedToDev inc. 2019</span>
+    </div>
+  </body>
+</html>

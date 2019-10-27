@@ -495,7 +495,6 @@ if (proceedToCheckoutButton) {
 store.sendOrder = function(event) {
     // preventing the submitting and collecting values
     event.preventDefault();
-    var formId = this.id; // sendOrder
     var path = this.action; // api/orders
     var method = "POST"; // POST
 
@@ -525,23 +524,13 @@ store.sendOrder = function(event) {
         payload.order = orderInfo; // collect the orderInfo object formed earlier
         // Send the order
         var xhr = new XMLHttpRequest();
-        xhr.open('POST', 'api/orders', true);
+        xhr.open('POST', 'api/orders/send', true);
         xhr.setRequestHeader("Content-type", "application/json");
         xhr.onreadystatechange = function() {
             if(xhr.readyState == XMLHttpRequest.DONE) {
                 var statusCode = xhr.status;
                 var responseReturned = xhr.responseText;
                 window.location = '/orderSent';
-            // Callback if requested
-            if(callback){
-                try {
-                    var parsedResponse = JSON.parse(responseReturned);
-                    callback(statusCode,parsedResponse);
-
-                } catch(e){
-                callback(statusCode,false);
-                }
-            }
             }
         }
         // Send the payload as JSON
@@ -574,6 +563,50 @@ store.sendOrder = function(event) {
 if (document.getElementsByClassName('order-send-btn')[0]) {
     document.getElementsByClassName('order-send-btn')[0].addEventListener('click', store.sendOrder);
 };
+
+store.checkOrder = function(event) {
+    event.preventDefault();
+    var responseText = "";
+    var formId = this.id; // checkOrder
+    var path = this.action; // api/orders/check
+    var method = this.method;
+    // Collect the order id
+    var inputOrderId = document.getElementById('orderId').value;
+    // Check if its valid
+    inputOrderId = inputOrderId.trim().length == 10 && typeof(inputOrderId) == 'string' ? inputOrderId.trim() : false;
+
+    if (inputOrderId) {
+        var queryStringObject = {
+            'orderId' : inputOrderId
+        };
+        var path = 'api/orders/check?orderId=' + inputOrderId;
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', path, true);
+        xhr.setRequestHeader('Content-type', 'application/json');
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState == XMLHttpRequest.DONE) {
+                var statusCode = xhr.status;
+                var responseReturned = xhr.responseText;
+                var responseJSON = JSON.parse(responseReturned);
+                var orderStatus = responseJSON.status;
+                if (statusCode == 404) {
+                    responseText = "No order with particular ID was found";
+                };
+                if (statusCode == 200) {
+                    responseText = "Your order status: " + orderStatus; 
+                };
+                document.getElementsByClassName('responseBox')[0].innerText = responseText;
+                document.getElementsByClassName('responseBox')[0].style.display = "block";
+            }
+        };
+        xhr.send();
+    } else {
+        responseText = "Invalid ID";
+    };
+}
+if (document.getElementsByClassName('btn-checkOrder')[0]) {
+    document.getElementsByClassName('btn-checkOrder')[0].addEventListener('click',store.checkOrder);
+}
 
 //
 //
