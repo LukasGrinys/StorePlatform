@@ -104,6 +104,31 @@ html, body {
   text-align: center;
   font-family: "Quicksand", sans-serif;
 }
+/* Navigation bar */
+.navigation-bar {
+  width: 100%;
+  background-color: black;
+  display: flex;
+  justify-content: flex-end;
+  position: sticky;
+  top:0;
+  left: 0;
+  z-index: 99;
+  padding: 0 20px;
+}
+
+.navigation-bar a {
+  text-decoration: none;
+  color: white;
+  text-transform: uppercase;
+  padding: 10px;
+  transition: transform 0.3s;
+  margin-left: 20px;
+}
+.navigation-bar a:hover {
+  transform: scale(1.07, 1.07);
+  transition: transform 0.3s;
+}
 /* Floating cart icon */
 .floating-cart {
   width: 110px;
@@ -129,7 +154,7 @@ html, body {
   .floating-cart {
     -webkit-position: sticky;
     position: sticky;
-    top: 10px;
+    top: 50px;
   }
 }
 .floating-cart:hover {

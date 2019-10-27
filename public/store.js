@@ -526,7 +526,6 @@ store.sendOrder = function(event) {
         // Send the order
         var xhr = new XMLHttpRequest();
         xhr.open('POST', 'api/orders', true);
-        console.log("Request made");
         xhr.setRequestHeader("Content-type", "application/json");
         xhr.onreadystatechange = function() {
             if(xhr.readyState == XMLHttpRequest.DONE) {
