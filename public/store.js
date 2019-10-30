@@ -1,7 +1,6 @@
 // LOGIC FOR THE STORE PAGE
 var store = {};
-// TODO : Set the cookies/localStorage (save orderInfo); Make a login form for users in the future // Headers and footers
-// Load the catalog and form the categories data
+
 var catalog = [];
 var pageConfig = {
     categoryTitles : [],
@@ -9,6 +8,9 @@ var pageConfig = {
     itemsPerPage : 5,
     pageNumber : 1,
     pagesNeeded : 1
+};
+store.config = {
+    'sessionToken' : false
 };
 
 var orderInfo = [];
@@ -54,6 +56,15 @@ store.openLoadingScreen = function() {
         document.getElementsByClassName('loading-screen')[0].style.display = 'flex';
     };
 }
+
+// Showing the employee name in navigation board
+store.displayUserName = function() {
+    if (store.config.sessionToken && document.getElementsByClassName('username')[0]) {
+        var str = JSON.parse(store.config.sessionToken);
+        document.getElementsByClassName('username')[0].innerText = str.username;
+        document.getElementsByClassName('username')[0].style.display = 'block';
+    }
+};
 
 // PAGE OPTION FUNCTIONS for sorting, filtering and displaying items
 
@@ -279,16 +290,7 @@ store.loadCatalogItems = function() {
     };
 }
 
-//
-store.ready = function() {
-    // Loading functions
-    store.requestCatalogData();
-    // "Shopping" functions
-    store.addingButtonFunctions();
-    store.updateTotal();
-    store.appendUpdateTotal();
-    store.updateFloatingCart();
-}
+
 
 // SHOPPING FUNCTIONS
 
@@ -483,8 +485,6 @@ store.updateFloatingCart = function() {
     };
 }
 
-store.ready();
-
 // Append proceedToCheckout function
 var proceedToCheckoutButton = document.getElementsByClassName('purchase-btn')[0];
 if (proceedToCheckoutButton) {
@@ -583,6 +583,9 @@ store.checkOrder = function(event) {
         var xhr = new XMLHttpRequest();
         xhr.open('GET', path, true);
         xhr.setRequestHeader('Content-type', 'application/json');
+        if (store.config.sessionToken) {
+            xhr.setRequestHeader("token", store.config.sessionToken.id);
+        }
         xhr.onreadystatechange = function() {
             if (xhr.readyState == XMLHttpRequest.DONE) {
                 var statusCode = xhr.status;
@@ -602,72 +605,204 @@ store.checkOrder = function(event) {
         xhr.send();
     } else {
         responseText = "Invalid ID";
+        document.getElementsByClassName('responseBox')[0].innerText = responseText;
+        document.getElementsByClassName('responseBox')[0].style.display = "block";
     };
 }
 if (document.getElementsByClassName('btn-checkOrder')[0]) {
     document.getElementsByClassName('btn-checkOrder')[0].addEventListener('click',store.checkOrder);
 }
 
-//
-//
-// 
-// Interface for making API calls
-store.request = function(headers,path,method,queryStringObject,payload,callback){
-    // Set defaults
-    headers = typeof(headers) == 'object' && headers !== null ? headers : {};
-    path = typeof(path) == 'string' ? path : '/';
-    method = typeof(method) == 'string' && ['POST','GET','PUT','DELETE'].indexOf(method.toUpperCase()) > -1 ? method.toUpperCase() : 'GET';
-    queryStringObject = typeof(queryStringObject) == 'object' && queryStringObject !== null ? queryStringObject : {};
-    payload = typeof(payload) == 'object' && payload !== null ? payload : {};
-    callback = typeof(callback) == 'function' ? callback : false;
-    // For each query string parameter sent, add it to the path
-    var requestUrl = path+'?';
-    var counter = 0;
-    for(var queryKey in queryStringObject){
-       if(queryStringObject.hasOwnProperty(queryKey)){
-         counter++;
-         // If at least one query string parameter has already been added, preprend new ones with an ampersand
-         if(counter > 1){
-           requestUrl+='&';
-         }
-         // Add the key and value
-         requestUrl+=queryKey+'='+queryStringObject[queryKey];
-       }
-    }
-    // Form the http request as a JSON type
+// Employee login
+store.adminLogin = function(event) {
+    event.preventDefault();
+    var errorText = "";
+    var username = document.getElementById('employeeUsername').value;
+    var password = document.getElementById('employeePassword').value;
+    var path = 'api/tokens';
+    var payload = {};
+    payload.username = username;
+    payload.password = password;
     var xhr = new XMLHttpRequest();
-    xhr.open(method, requestUrl, true);
+    xhr.open('POST', path, true);
     xhr.setRequestHeader("Content-type", "application/json");
-    // For each header sent, add it to the request
-    for(var headerKey in headers){
-       if(headers.hasOwnProperty(headerKey)){
-         xhr.setRequestHeader(headerKey, headers[headerKey]);
-       }
-    }
-    // If there is a current session token set, add that as a header
-    //if(store.config.sessionToken){
-    //  xhr.setRequestHeader("token", store.config.sessionToken.id);
-    //}
     // When the request comes back, handle the response
     xhr.onreadystatechange = function() {
         if(xhr.readyState == XMLHttpRequest.DONE) {
-          var statusCode = xhr.status;
-          var responseReturned = xhr.responseText;
-          // Callback if requested
-          if(callback){
-            try{
-                console.log(responseReturned);
-              var parsedResponse = JSON.parse(responseReturned);
-              callback(statusCode,parsedResponse);
-            } catch(e){
-              callback(statusCode,false);
-
+            var statusCode = xhr.status;
+            var responseReturned = xhr.responseText;
+            if (statusCode !== 200) {
+                var responseJSON = JSON.parse(responseReturned);
+                var errorText = responseJSON.Error;
+                document.getElementsByClassName('errText')[0].innerText = errorText;
+            } else {
+                // If login was successful, set the token in localstorage and redirect the user
+                store.setSessionToken(responseReturned);
+                window.location = '/dashboard';
             }
-          }
-        }
-    }
-    // Send the payload as JSON
+        };
+    };
     var payloadString = JSON.stringify(payload);
-    xhr.send(payloadString);
+    xhr.send(payloadString); 
+};
+if (document.getElementsByClassName('employee-login-btn')[0]) {
+    document.getElementsByClassName('employee-login-btn')[0].addEventListener('click',store.adminLogin);
 };
 
+store.setSessionToken = function(token) {
+    store.config.sessionToken = token;
+    var tokenString = JSON.stringify(token);
+    localStorage.setItem('token',tokenString);
+};
+
+// Get the token from localstorage and set it in the store.config object
+store.getSessionToken = function(){
+    var tokenString = localStorage.getItem('token');
+    if(typeof(tokenString) == 'string'){
+      try {
+        var token = JSON.parse(tokenString);
+        store.config.sessionToken = token;
+      } catch(e){
+        store.config.sessionToken = false;
+      }
+    }
+};
+
+// Log the user out then redirect them
+store.logAdminOut = function(event){
+    event.preventDefault();
+    // Get the current token id
+    var tokenId = typeof(store.config.sessionToken.id) == 'string' ? store.config.sessionToken.id : false;
+    // Send the current token to the tokens endpoint to delete it
+    var queryStringObject = {
+      'id' : tokenId
+    };
+    var path = 'api/tokens?id=' + tokenId;
+    var xhr = new XMLHttpRequest();
+    xhr.open('DELETE', 'api/tokens');
+    xhr.setRequestHeader("Content-type", "application/json");
+    // When the request comes back, handle the response
+    xhr.onreadystatechange = function() {
+      if(xhr.readyState == XMLHttpRequest.DONE) {
+        var statusCode = xhr.status;
+        var responseReturned = xhr.responseText;
+        window.location = '/';
+      }
+    }
+    xhr.send();
+    // Set the store.config token as false
+    store.setSessionToken(false);
+};
+if (document.getElementById('admin-logout')) {
+    document.getElementById('admin-logout').addEventListener('click',store.logAdminOut);
+}
+
+// Redirect, if user tries to access unauthorised pages without a token
+store.redirect = function() {
+    if (document.getElementsByClassName('navigation-admin')[0] && !store.config.sessionToken) {
+        window.location = '/login';
+    };
+};
+
+// If user is logged in, skip the "Log in" page
+store.openManagementPage = function() {
+    if (store.config.sessionToken) {
+        window.location = '/dashboard'
+    } else {
+        window.location = '/login'
+    }
+};
+if (document.getElementById('management')) {
+    document.getElementById('management').addEventListener('click',store.openManagementPage);
+};
+
+// Load the orders
+store.loadOrders = function() {
+    if (document.getElementById('table-orders')) {
+        if (store.config.sessionToken) {
+            var xhr = new XMLHttpRequest();
+            // The request is called to collect data from all order files into one session file, named with the admin username
+            xhr.open('POST', 'api/orders/view');
+            xhr.setRequestHeader("Content-type", "application/json");
+            xhr.onreadystatechange = function() {
+                if(xhr.readyState == XMLHttpRequest.DONE) {
+                    var statusCode = xhr.status;
+                    var responseReturned = xhr.responseText;
+                    var responseobject = JSON.parse(responseReturned);
+                    // load the orders into orders.html
+                    var tableElement = document.getElementById('table-orders');
+                    var orderCount = responseobject.length;
+                    for (let i = 0; i < orderCount; i++) {
+                        let obj = JSON.parse(responseobject[i]);
+                        let tableRow = document.createElement('tr');
+                        // Convert date
+                        var d = new Date(obj.time);
+                        // Form order list and total price
+                        let itemString = "";
+                        let totalPrice = 0;
+                        let itemsobject = obj.order;
+                        for (let i = 0; i < itemsobject.length; i++) {
+                            let itemName = itemsobject[i].name;
+                            let itemQuantity = itemsobject[i].quantity;
+                            let itemPrice = itemsobject[i].price.replace("$","");
+                            itemString += itemName + " (" + itemQuantity + " x " + itemPrice + ")<br>";
+                            totalPrice += Number(itemQuantity) * Number(itemPrice);
+                        };
+                        totalPrice = store.fixThePrice(totalPrice);
+                        tableRow.innerHTML = `<td>${obj.orderId}</td>
+                        <td>${d.toLocaleString()}</th>
+                        <td>${obj.fullName}</td>
+                        <td>${obj.address[0]}<br>${obj.address[1]}</td>
+                        <td>${obj.email}</td>
+                        <td>${itemString}</td>
+                        <td>$${totalPrice}</td>
+                        <td>${obj.status}</td>
+                        <td><button type="button" class="btn-blue orders-action">Do something</button></td>`;
+                        tableElement.append(tableRow);
+                    };
+                }
+            }
+            var tokenObject = JSON.parse(store.config.sessionToken);
+            var payload = {
+                'username' : tokenObject.username
+            };
+            var payloadString = JSON.stringify(payload);
+            xhr.send(payloadString); 
+        } else {
+            window.location = '/login';
+        }
+    };
+}
+
+store.fixThePrice = function(num) {
+    let str = String(num);
+    let index = str.indexOf(".")
+    if (index == -1) {
+        return str + ".00";
+    };
+    let decimal = str.slice(index + 1, str.length);
+    if (decimal.length == 1) {
+        return str + "0";
+    };
+    return str;
+}
+
+// Initializing the store functions
+store.ready = function() {
+    // Get the token from local storage
+    store.getSessionToken();
+    // Load orders if the session token is set
+    store.loadOrders();
+    // Redirect if there is no token in admin page
+    store.redirect();
+    // Loading functions
+    store.displayUserName();
+    store.requestCatalogData();
+    // "Shopping" functions
+    store.addingButtonFunctions();
+    store.updateTotal();
+    store.appendUpdateTotal();
+    store.updateFloatingCart();
+}
+
+store.ready();

@@ -2,6 +2,7 @@
 <html>
   <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FICTIONAL | Employee login</title>
     <link href="https://fonts.googleapis.com/css?family=Nunito&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css?family=Quicksand&display=swap" rel="stylesheet">
     <link type="image/x-icon" rel="icon" href="public/favicon.ico">
@@ -11,24 +12,28 @@
   </head>
   <body>
     <div class='header'>
-      <span>FICTIONAL STORE</span>
+      <span>FICTIONAL</span>
     </div>
     <div class="navigation-bar">
       <div class="logo"></div>
-      <a class="username" href="/"></a>
+      <a class="username" href="/dashboard"></a>
       <a href="/">Store</a>
       <a href="/checkOrder">Check order</a>
       <a href="#" id="management">Management</a>
     </div>
     <div class='container'>
-      <h1>Check your order status</h1>
-      <form class="check-order" id="checkOrder" action="/api/orders/check" method="GET">
-        <span>Enter your 10-digit order ID that was sent to your e-mail:</span><br>
-        <input type="number" name="orderId" id="orderId"><br>
-        <button type="submit" class="btn-blue btn-checkOrder">Check</button><br>
-        <div class="responseBox"></div>
-      </form>
-
+      <h1>Admin zone</h1>
+      <div class='login-wrapper'>
+            <form class="employee-login" id="employeeLogin" action="api/tokens" method="POST">
+                <div class="formError"></div>
+                <span>Enter your username:</span><br>
+                <input type="text" name="employeeUsername" id="employeeUsername" value="admin"><br>
+                <span>Enter your password:</span><br>
+                <input type="password" name="employeePassword" id="employeePassword" value="admin"><br>
+                <button type="submit" class="employee-login-btn btn-blue">Login</button>
+            </form>
+            <div class="errText"></div>
+        </div>
     </div>
     <div class='footer'>
       <span>FromMedToDev inc. 2019</span>

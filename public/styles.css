@@ -129,6 +129,10 @@ html, body {
   transform: scale(1.07, 1.07);
   transition: transform 0.3s;
 }
+.navigation-bar a.username {
+  text-transform: none;
+  margin-right: auto;
+}
 /* Floating cart icon */
 .floating-cart {
   width: 110px;
@@ -772,4 +776,71 @@ input[type=number]::-webkit-outer-spin-button {
   padding: 15px;
   background-color: white;
   display: none;
+}
+
+/* Employee Login */
+.login-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
+.employee-login {
+  padding: 15px;
+}
+.employee-login input {
+  font-size: 1em;
+  font-family: "Nunito", sans-serif;
+}
+.employee-login-btn {
+  font-family: "Nunito", sans-serif;
+  padding: 10px;
+  font-size: 1em;
+  border-radius: 2px;
+  margin-top: 10px;
+  cursor: pointer;
+}
+.navigation-admin {
+  background-color: #73A1B0;
+}
+.admin-dashboard-wrapper {
+  display: flex;
+  justify-content: space-around;
+}
+.admin-dashboard-item {
+  border: 1px solid black;
+  text-align: center;
+  padding: 15px;
+  background-color: #73A1B0;
+}
+.admin-dashboard-item > a {
+  text-decoration: none;
+  font-style: uppercase;
+  font-size: 1.5em;
+  color: white;
+}
+
+/* ORDERS */
+table {
+  border: 1px solid black;
+  width: 100%;
+}
+table, th, td {
+  border: 1px solid black;
+  border-collapse: collapse;
+}
+th {
+  background-color: black;
+  color: white;
+}
+td {
+  background-color: white;
+}
+tr:hover td{
+  background-color: rgb(185, 185, 185);
+}
+.orders-action {
+  padding: 5px;
+  text-align: center;
+  border-radius: 2px;
 }
