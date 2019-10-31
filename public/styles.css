@@ -91,6 +91,13 @@ html, body {
   background-color: rgb(138, 69, 48);
   transform: scale(0.95,0.95);
 }
+.btn-green {
+  background-color: rgb(106, 172, 62);
+  transition-duration: 0.2s;
+  -webkit-transition-duration: 0.2s;
+  color: white;
+  border: none;
+}
 .header {
   width: 100vw;
   height: 250px;
@@ -842,5 +849,36 @@ tr:hover td{
 .orders-action {
   padding: 5px;
   text-align: center;
+  border: 1px solid black;
   border-radius: 2px;
+  width: 60px;
+  background-color: white;
+}
+.orders-action:focus {
+  outline: none;
+}
+.orders-action:hover {
+  background-color: grey;
+}
+.orders-action:disabled:hover {
+  background-color: white;
+}
+.orders-delete {
+  width: 16px;
+  height: 16px;
+  color: white;
+  background-color: rgb(82, 20, 20);
+  font-size: 0.8em;
+  text-align: center;
+  margin: 5px auto;
+  font-weight: bold;
+  cursor: pointer;
+  padding: 1.5px 0px;
+}
+.orders-action-column {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  align-items: center;
+  font-size: 0.8em;
 }

@@ -728,7 +728,12 @@ store.loadOrders = function() {
                 if(xhr.readyState == XMLHttpRequest.DONE) {
                     var statusCode = xhr.status;
                     var responseReturned = xhr.responseText;
-                    var responseobject = JSON.parse(responseReturned);
+                    var responseunsorted = JSON.parse(responseReturned);
+                    var responseobject = responseunsorted.sort(function(a,b) {
+                        let x = JSON.parse(a);
+                        let y = JSON.parse(b);
+                        return x.orderId - y.orderId;
+                    })
                     // load the orders into orders.html
                     var tableElement = document.getElementById('table-orders');
                     var orderCount = responseobject.length;
@@ -749,6 +754,17 @@ store.loadOrders = function() {
                             totalPrice += Number(itemQuantity) * Number(itemPrice);
                         };
                         totalPrice = store.fixThePrice(totalPrice);
+                        // Form the action button
+                        let buttonHTML = '';
+                        if (obj.status.trim() == 'Waiting for payment') {
+                            buttonHTML = `<button type="button" class="orders-action">Confirm payment</button>`;
+                        };
+                        if (obj.status.trim() == 'Payment received. Processing') {
+                            buttonHTML = '<button type="button" class="orders-action">Ship</button>'
+                        };
+                        if (obj.status.trim() == 'Shipped') {
+                            buttonHTML = '<button type="button" class="orders-action" disabled>Done</button>';
+                        }
                         tableRow.innerHTML = `<td>${obj.orderId}</td>
                         <td>${d.toLocaleString()}</th>
                         <td>${obj.fullName}</td>
@@ -757,8 +773,10 @@ store.loadOrders = function() {
                         <td>${itemString}</td>
                         <td>$${totalPrice}</td>
                         <td>${obj.status}</td>
-                        <td><button type="button" class="btn-blue orders-action">Do something</button></td>`;
+                        <td><div class="orders-action-column">${buttonHTML} <div class="orders-delete">X</div></div></td>`;
                         tableElement.append(tableRow);
+                        document.getElementsByClassName('orders-action')[i].addEventListener('click',store.adminUpdateOrderStatus);
+                        document.getElementsByClassName('orders-delete')[i].addEventListener('click',store.adminDeleteOrder);
                     };
                 }
             }
@@ -784,7 +802,73 @@ store.fixThePrice = function(num) {
     if (decimal.length == 1) {
         return str + "0";
     };
+    if (decimal.length > 2) {
+        return str.slice(0, index + 3);
+    }
     return str;
+}
+
+store.adminUpdateOrderStatus = function(event) {
+    var targetRow = event.target.parentElement.parentElement.parentElement;
+    var currentStatus = targetRow.childNodes[7].innerText;
+    if (currentStatus !== "Shipped") {
+        if (store.config.sessionToken) {
+            // request
+            var orderId = targetRow.firstChild.innerText;
+            var xhr = new XMLHttpRequest();
+            xhr.open('POST', 'api/orders/update');
+            xhr.setRequestHeader("Content-type","application/json");
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState == XMLHttpRequest.DONE) {
+                    var statusCode = xhr.status;
+                    var responseReturned = xhr.responseText;
+                    if (statusCode == 200) {
+                        event.target.parentElement.innerHTML = "Order status updated";
+                    }
+                }
+            };
+            var payload = {
+                'orderId' : orderId.trim()
+            };
+            var payloadString = JSON.stringify(payload);
+            xhr.send(payloadString);
+        } else {
+            window.location = '/login'
+        }
+    } else {
+        console.log("Its the final state");
+    }
+}
+
+store.adminDeleteOrder = function(event) {
+    var targetRow = event.target.parentElement.parentElement.parentElement;
+    var orderId = targetRow.firstChild.innerText;
+    var username = JSON.parse(store.config.sessionToken).username;
+    if (confirm(`Are you sure about deleting the order (ID: ${orderId} )?\nPress OK to confirm`)) {
+        var xhr = new XMLHttpRequest();
+        xhr.open('DELETE','api/orders/delete?orderId='+orderId);
+        xhr.setRequestHeader("Content-type","application/json");
+        if (store.config.sessionToken) {
+            var parsedToken = JSON.parse(store.config.sessionToken).id
+            xhr.setRequestHeader("token", parsedToken);
+        };
+        xhr.setRequestHeader("username", username);
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState == XMLHttpRequest.DONE) {
+                var statusCode = xhr.status;
+                var responseReturned = xhr.responseText;
+                if (statusCode == 200) {
+                    console.log("Order deleted");
+                    targetRow.innerHTML = "";
+                } else {
+                    console.log(responseReturned);
+                }
+            }
+        };
+        xhr.send();
+    } else {
+        // 
+    }
 }
 
 // Initializing the store functions
