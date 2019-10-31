@@ -815,16 +815,20 @@ input[type=number]::-webkit-outer-spin-button {
   justify-content: space-around;
 }
 .admin-dashboard-item {
-  border: 1px solid black;
+  width: 250px;
+  height: 180px;
+  border: 2px solid rgb(138, 138, 138);
+  border-radius: 3px;
   text-align: center;
   padding: 15px;
-  background-color: #73A1B0;
-}
-.admin-dashboard-item > a {
-  text-decoration: none;
-  font-style: uppercase;
-  font-size: 1.5em;
+  background-color:#73A1B0;
   color: white;
+  text-decoration: none;
+}
+.admin-dashboard-item:hover {
+  background-color: rgb(81, 111, 121); 
+  -webkit-transition-duration: 0.2s;
+  transition-duration: 0.2s;
 }
 
 /* ORDERS */
@@ -881,4 +885,13 @@ tr:hover td{
   justify-content: space-around;
   align-items: center;
   font-size: 0.8em;
+}
+.orders-table-error {
+  display:none;
+  font-size: 0.7em;
+  background-color:rgb(199, 100, 70);
+  padding: 10px;
+  color: white;
+  margin-bottom: 5px;
+  width: 98%;
 }

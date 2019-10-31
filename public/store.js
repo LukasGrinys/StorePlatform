@@ -63,6 +63,9 @@ store.displayUserName = function() {
         var str = JSON.parse(store.config.sessionToken);
         document.getElementsByClassName('username')[0].innerText = str.username;
         document.getElementsByClassName('username')[0].style.display = 'block';
+    } else {
+        document.getElementsByClassName('username')[0].innerText = '';
+        document.getElementsByClassName('username')[0].style.display = 'none';
     }
 };
 
@@ -661,7 +664,13 @@ store.getSessionToken = function(){
     if(typeof(tokenString) == 'string'){
       try {
         var token = JSON.parse(tokenString);
-        store.config.sessionToken = token;
+        if (token.expires < Date.now()) {
+            console.log("False");
+            store.config.sessionToken = false;
+        } else {
+            store.config.sessionToken = token;
+            console.log("True");
+        };
       } catch(e){
         store.config.sessionToken = false;
       }
@@ -811,6 +820,7 @@ store.fixThePrice = function(num) {
 store.adminUpdateOrderStatus = function(event) {
     var targetRow = event.target.parentElement.parentElement.parentElement;
     var currentStatus = targetRow.childNodes[7].innerText;
+    var errorBox = document.getElementsByClassName('orders-table-error')[0];
     if (currentStatus !== "Shipped") {
         if (store.config.sessionToken) {
             // request
@@ -818,25 +828,32 @@ store.adminUpdateOrderStatus = function(event) {
             var xhr = new XMLHttpRequest();
             xhr.open('POST', 'api/orders/update');
             xhr.setRequestHeader("Content-type","application/json");
+            if (store.config.sessionToken) {
+                var parsedToken = JSON.parse(store.config.sessionToken).id;
+                xhr.setRequestHeader("token", parsedToken);
+                var username = JSON.parse(store.config.sessionToken).username;
+                xhr.setRequestHeader("username", username);
+            }
             xhr.onreadystatechange = function() {
                 if (xhr.readyState == XMLHttpRequest.DONE) {
                     var statusCode = xhr.status;
                     var responseReturned = xhr.responseText;
                     if (statusCode == 200) {
                         event.target.parentElement.innerHTML = "Order status updated";
+                    } else {
+                        errorBox.style.display = "inline-block";
+                        errorBox.innerText = responseReturned;
                     }
                 }
             };
             var payload = {
-                'orderId' : orderId.trim()
+                'orderId' : orderId
             };
             var payloadString = JSON.stringify(payload);
             xhr.send(payloadString);
         } else {
             window.location = '/login'
         }
-    } else {
-        console.log("Its the final state");
     }
 }
 
@@ -858,7 +875,6 @@ store.adminDeleteOrder = function(event) {
                 var statusCode = xhr.status;
                 var responseReturned = xhr.responseText;
                 if (statusCode == 200) {
-                    console.log("Order deleted");
                     targetRow.innerHTML = "";
                 } else {
                     console.log(responseReturned);
