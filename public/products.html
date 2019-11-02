@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FICTIONAL | Products</title>
+    <link href="https://fonts.googleapis.com/css?family=Nunito&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Quicksand&display=swap" rel="stylesheet">
+    <link type="image/x-icon" rel="icon" href="public/favicon.ico">
+    <link rel="stylesheet" type="text/css" href="public/styles.css">
+    <script src="public/jquery.js"></script>
+    <script type="text/javascript" charset="utf-8" src="public/store.js" defer></script>
+</head>
+<body>
+  <div class="navigation-bar navigation-admin">
+    <div class="logo"></div>
+    <a class="username" href="/dashboard"></a>
+    <a href="/">Back to store</a>
+    <a href="/orders">Orders</a>
+    <a href="/products">Products</a>
+    <a href="/dashboard" id="admin-logout">Log Out</a>
+  </div>
+  <div class='container'>
+    <h1>Products</h1>
+    <div class='product-edit-form'></div>
+    <div class='products-table-error'></div>
+    <table id='table-products'>
+    <tr>
+        <th>Product ID</th>
+        <th>Picture</th>
+        <th>Title</th>
+        <th>Category</th>
+        <th>Alternative title</th>
+        <th>Customer E-Mail</th>
+        <th>Description</th>
+        <th>Price</th>
+        <th>Actions</th>
+    </tr>
+    </table>
+  </div>
+  <div class='footer'>
+    <span>FromMedToDev inc. 2019</span>
+  </div>
+</body>
+</html>

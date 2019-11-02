@@ -60,7 +60,7 @@ store.openLoadingScreen = function() {
 // Showing the employee name in navigation board
 store.displayUserName = function() {
     if (store.config.sessionToken && document.getElementsByClassName('username')[0]) {
-        var str = JSON.parse(store.config.sessionToken);
+        var str = store.config.sessionToken;
         document.getElementsByClassName('username')[0].innerText = str.username;
         document.getElementsByClassName('username')[0].style.display = 'block';
     } else {
@@ -654,8 +654,7 @@ if (document.getElementsByClassName('employee-login-btn')[0]) {
 
 store.setSessionToken = function(token) {
     store.config.sessionToken = token;
-    var tokenString = JSON.stringify(token);
-    localStorage.setItem('token',tokenString);
+    localStorage.setItem('token',token);
 };
 
 // Get the token from localstorage and set it in the store.config object
@@ -663,18 +662,59 @@ store.getSessionToken = function(){
     var tokenString = localStorage.getItem('token');
     if(typeof(tokenString) == 'string'){
       try {
-        var token = JSON.parse(tokenString);
-        if (token.expires < Date.now()) {
-            console.log("False");
-            store.config.sessionToken = false;
-        } else {
+            var token = JSON.parse(tokenString);
             store.config.sessionToken = token;
-            console.log("True");
-        };
       } catch(e){
-        store.config.sessionToken = false;
+            store.config.sessionToken = false;
       }
     }
+};
+
+// Extend the expiration of the token
+store.renewToken = function(callback) {
+    var currentToken = typeof(store.config.sessionToken) == 'object' ? store.config.sessionToken : false;
+    if (currentToken) {
+        var payload = {
+            'id' : currentToken.id,
+            'extend' : true
+        };
+        var xhr = new XMLHttpRequest();
+        xhr.open('PUT','api/tokens');
+        xhr.setRequestHeader("Content-type", "application/json");
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState == XMLHttpRequest.DONE) {
+                var statusCode = xhr.status;
+                var responseReturned = xhr.responseText;
+                if (statusCode == 200) {
+                    var queryStringObject = { 'id' : currentToken.id };
+                    var yhr = new XMLHttpRequest();
+                    yhr.open('GET','api/tokens?id='+currentToken.id);
+                    yhr.onreadystatechange = function() {
+                        if (yhr.readyState == XMLHttpRequest.DONE) {
+                            let statusCode = yhr.status;
+                            let responsestring = yhr.responseText;
+                            if (statusCode == 200) {
+                                responsePayload = JSON.parse(responsestring);
+                                store.setSessionToken(responsePayload);
+                                console.log(store.config.sessionToken.expires);
+                                callback(false);
+                                
+                            } else {
+                                console.log("Something wong");
+                                store.setSessionToken(false);
+                                callback(true);
+                            }
+                        }
+                    }
+                    yhr.send();
+                } else {
+                    console.log("Sum ting wong");
+                }
+            };
+        }
+        var payloadString = JSON.stringify(payload);
+        xhr.send(payloadString);
+    };   
 };
 
 // Log the user out then redirect them
@@ -789,7 +829,7 @@ store.loadOrders = function() {
                     };
                 }
             }
-            var tokenObject = JSON.parse(store.config.sessionToken);
+            var tokenObject = store.config.sessionToken;
             var payload = {
                 'username' : tokenObject.username
             };
@@ -860,13 +900,13 @@ store.adminUpdateOrderStatus = function(event) {
 store.adminDeleteOrder = function(event) {
     var targetRow = event.target.parentElement.parentElement.parentElement;
     var orderId = targetRow.firstChild.innerText;
-    var username = JSON.parse(store.config.sessionToken).username;
+    var username = store.config.sessionToken.username;
     if (confirm(`Are you sure about deleting the order (ID: ${orderId} )?\nPress OK to confirm`)) {
         var xhr = new XMLHttpRequest();
         xhr.open('DELETE','api/orders/delete?orderId='+orderId);
         xhr.setRequestHeader("Content-type","application/json");
         if (store.config.sessionToken) {
-            var parsedToken = JSON.parse(store.config.sessionToken).id
+            var parsedToken = store.config.sessionToken.id
             xhr.setRequestHeader("token", parsedToken);
         };
         xhr.setRequestHeader("username", username);
@@ -889,8 +929,16 @@ store.adminDeleteOrder = function(event) {
 
 // Initializing the store functions
 store.ready = function() {
+    // Renew token
+    store.renewToken(function(err) {
+        if (err) {
+            console.log(err);
+        };
+    });
     // Get the token from local storage
-    store.getSessionToken();
+    if (!store.config.sessionToken) {
+        store.getSessionToken();
+    };
     // Load orders if the session token is set
     store.loadOrders();
     // Redirect if there is no token in admin page
@@ -903,6 +951,6 @@ store.ready = function() {
     store.updateTotal();
     store.appendUpdateTotal();
     store.updateFloatingCart();
-}
+};
 
 store.ready();
