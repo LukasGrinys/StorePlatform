@@ -1,0 +1,9 @@
+{
+    "id" : "#003",
+    "name" : "White Coffee Mug",
+    "category" : "Coffee mugs",
+    "imageSrc" : "Items/item03.jpg",
+    "altTitle" : "White Mug",
+    "description" : "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis ligula urna, dignissim sed tristique in, vulputate at ante.",
+    "price" : "5.50"
+}

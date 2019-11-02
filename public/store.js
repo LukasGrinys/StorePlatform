@@ -15,24 +15,24 @@ store.config = {
 
 var orderInfo = [];
 store.requestCatalogData = function()  {
-    // Request the product catalog
-    $.ajax ({
-        type: 'get',
-        url: 'public/itemCatalog.json',
-        success: function(response) {
-            catalog = JSON.parse(response);
-            if (catalog.length % pageConfig.itemsPerPage == 0) {
-                pageConfig.pagesNeeded = catalog.length / pageConfig.itemsPerPage;
-            } else {
-                pageConfig.pagesNeeded = Math.floor(catalog.length / pageConfig.itemsPerPage) + 1;
-            };
-            store.appendPageNumbers();
-            store.loadCategories(catalog);
-            store.loadCatalogItems();
-            store.closeLoadingScreen(); // it is opened by default and after changing product display options
-        }
-    });
-}
+    var xhr = new XMLHttpRequest();
+    xhr.open("GET","api/products/load", true);
+    xhr.setRequestHeader("Content-Type", "application/json");
+    xhr.onreadystatechange = function() {
+        if (xhr.readyState == XMLHttpRequest.DONE) {
+                    var statusCode = xhr.status;
+                    var responseReturned = xhr.responseText;
+                    var obj = JSON.parse(responseReturned);
+                    catalog = obj;
+                    store.appendPageNumbers();
+                    store.loadCategories(catalog);
+                    store.loadCatalogItems();
+                    store.closeLoadingScreen();
+        };
+    };
+    xhr.send();
+};
+
 store.loadCategories = function(data) {
     for (let i = 0; i < data.length; i++) {
         item = data[i];
@@ -63,7 +63,7 @@ store.displayUserName = function() {
         var str = store.config.sessionToken;
         document.getElementsByClassName('username')[0].innerText = str.username;
         document.getElementsByClassName('username')[0].style.display = 'block';
-    } else {
+    } else if (!store.config.sessionToken && document.getElementsByClassName('username')[0]) {
         document.getElementsByClassName('username')[0].innerText = '';
         document.getElementsByClassName('username')[0].style.display = 'none';
     }

@@ -1,0 +1,9 @@
+{
+    "id" : "#004",
+    "name" : "Acoustic Guitar",
+    "category" : "Instruments",
+    "imageSrc" : "Items/item04.jpg",
+    "altTitle" : "Acoustic Guitar",
+    "description" : "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis ligula urna, dignissim sed tristique in, vulputate at ante.",
+    "price" : "29.30"
+}
