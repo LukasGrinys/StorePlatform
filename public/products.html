@@ -21,19 +21,40 @@
   </div>
   <div class='container'>
     <h1>Products</h1>
-    <div class='product-edit-form'></div>
+    <form action="#" id='product-edit-form'>
+        <span>Product ID:</span>
+        <span>Here goes the ID (automatically generated)</span><br>
+        <span>Product title:</span><br>
+        <input type="text" name="productTitle"><br>
+        <span>Alternative title (for image):</span><br>
+        <input type="text" name="altProductTitle"><br>
+        <span>Category:</span><br>
+        <select class="product-edit-category">
+            <option>Option 1</option>
+            <option>Option 2</option>
+        </select><br>
+        <span>Description:</span><br>
+        <input type="text" name="productDescription"><br>
+        <span>Price:</span><br>
+        <input type="number" name="productPrice"><br>
+        <span>Upload picture: (5:4 ratio images of .jpg format with white background will make the best result!)</span><br>
+        <input type="file" name="productImage"><br>
+        <button type="submit">Apply changes</button>
+    </form>
+    </div>
     <div class='products-table-error'></div>
     <table id='table-products'>
     <tr>
-        <th>Product ID</th>
+        <th>ID</th>
         <th>Picture</th>
         <th>Title</th>
         <th>Category</th>
         <th>Alternative title</th>
-        <th>Customer E-Mail</th>
         <th>Description</th>
         <th>Price</th>
         <th>Actions</th>
+        <th>Last changes</th>
+        <th>Changed by</th>
     </tr>
     </table>
   </div>
