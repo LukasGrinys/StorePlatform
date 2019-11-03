@@ -21,28 +21,55 @@
   </div>
   <div class='container'>
     <h1>Products</h1>
-    <form action="#" id='product-edit-form'>
-        <span>Product ID:</span>
-        <span>Here goes the ID (automatically generated)</span><br>
-        <span>Product title:</span><br>
-        <input type="text" name="productTitle"><br>
-        <span>Alternative title (for image):</span><br>
-        <input type="text" name="altProductTitle"><br>
-        <span>Category:</span><br>
-        <select class="product-edit-category">
-            <option>Option 1</option>
-            <option>Option 2</option>
-        </select><br>
-        <span>Description:</span><br>
-        <input type="text" name="productDescription"><br>
-        <span>Price:</span><br>
-        <input type="number" name="productPrice"><br>
-        <span>Upload picture: (5:4 ratio images of .jpg format with white background will make the best result!)</span><br>
-        <input type="file" name="productImage"><br>
-        <button type="submit">Apply changes</button>
-    </form>
-    </div>
+    <div class='add-new-product'>Add new</div>
     <div class='products-table-error'></div>
+    <div class="products-edit-wrapper">
+
+        <form action="#" id='product-add-form' class='product-form'>
+            <span><b>Add product:</b></span><br>
+            <span>Product ID:</span><br>
+            <span id="productAddId"></span><br>
+            <span>Product title:</span><br>
+            <input type="text" name="productTitle" placeholder="Wooden Duck"><br>
+            <span>Alternative title (for image):</span><br>
+            <input type="text" name="altProductTitle" placeholder="Wooden Duck"><br>
+            <span>Category:</span><br>
+            <span>Select a category:</span>
+            <select id="productEditCategory" class="product-edit-category">
+            </select><br>
+            <span>Add a new category: (new category icon must be uploaded)</span><br>
+            <input type="text" name="newProductCategory" placeholder="Toys"><br>
+            <span>Description:</span><br>
+            <textarea rows="5" cols="30" maxlength="121" name="productDescription" placeholder="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis ligula urna, dignissim sed tristique in, vulputate at ante."></textarea><br>
+            <span>Price:</span><br>
+            <input type="number" name="productPrice" placeholder="14.50" step="0.01"><br>
+            <button type="submit" id="btn-addProduct" class="btn-blue">Apply changes</button>
+        </form>
+
+        <form action="#" id='product-edit-form' class='product-form'>
+            <span><b>Edit product:</b></span><br>
+            <span>Product ID:</span><br>
+            <span id="productEditId"></span><br>
+            <span>Product title:</span><br>
+            <input type="text" name="productTitle" placeholder="Wooden Duck"><br>
+            <span>Alternative title (for image):</span><br>
+            <input type="text" name="altProductTitle" placeholder="Wooden Duck"><br>
+            <span>Category:</span><br>
+            <span>Select a category:</span>
+            <select id="editCategories" class="product-edit-category"></select><br>
+            <span>Enter a new category. <br>This will replace the existing one (new category icon must be uploaded)</span><br>
+            <input type="text" name="newProductCategory" placeholder="New category"><br>
+            <span>Description:</span><br>
+            <textarea rows="5" cols="30" maxlength="121" name="productDescription"></textarea><br>
+            <span>Price:</span><br>
+            <input type="number" name="productPrice" step="0.01"><br>
+            <button type="submit" id="btn-editProduct" class="btn-blue">Apply changes</button>
+        </form>
+
+    </div>
+
+    </div>
+
     <table id='table-products'>
     <tr>
         <th>ID</th>

@@ -1,1 +1,1 @@
-{"id" : "#002","name" : "Tasteful Book","category" : "Books","imageSrc" : "Items/item02.jpg","altTitle" : "Tasteful Book","description" : "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis ligula urna, dignissim sed tristique in, vulputate at ante.","price" : "15.99"}
+{"id":"#002","name":"Tasteful Book","category":"books","imageSrc":"Items/item002.jpg","altTitle":"Tasteful Book","description":"Lorem ipsum dolor sit amet.","price":"15.99","timeOfChanges":1572793104854,"lastChangesBy":"admin"}

@@ -28,6 +28,9 @@ store.requestCatalogData = function()  {
                     store.loadCategories(catalog);
                     store.loadCatalogItems();
                     store.closeLoadingScreen();
+                    if (statusCode !== 200) {
+                        console.log('Error : Could not receive catalog info')
+                    }
         };
     };
     xhr.send();
@@ -622,12 +625,11 @@ store.adminLogin = function(event) {
     var errorText = "";
     var username = document.getElementById('employeeUsername').value;
     var password = document.getElementById('employeePassword').value;
-    var path = 'api/tokens';
     var payload = {};
     payload.username = username;
     payload.password = password;
     var xhr = new XMLHttpRequest();
-    xhr.open('POST', path, true);
+    xhr.open('POST', 'api/tokens', true);
     xhr.setRequestHeader("Content-type", "application/json");
     // When the request comes back, handle the response
     xhr.onreadystatechange = function() {
@@ -653,21 +655,15 @@ if (document.getElementsByClassName('employee-login-btn')[0]) {
 };
 
 store.setSessionToken = function(token) {
-    store.config.sessionToken = token;
+    store.config.sessionToken = JSON.parse(token);
     localStorage.setItem('token',token);
 };
 
 // Get the token from localstorage and set it in the store.config object
 store.getSessionToken = function(){
     var tokenString = localStorage.getItem('token');
-    if(typeof(tokenString) == 'string'){
-      try {
-            var token = JSON.parse(tokenString);
-            store.config.sessionToken = token;
-      } catch(e){
-            store.config.sessionToken = false;
-      }
-    }
+    var token = JSON.parse(tokenString);
+    store.config.sessionToken = token;
 };
 
 // Extend the expiration of the token
@@ -683,6 +679,7 @@ store.renewToken = function(callback) {
         xhr.setRequestHeader("Content-type", "application/json");
         xhr.onreadystatechange = function() {
             if (xhr.readyState == XMLHttpRequest.DONE) {
+                
                 var statusCode = xhr.status;
                 var responseReturned = xhr.responseText;
                 if (statusCode == 200) {
@@ -694,11 +691,7 @@ store.renewToken = function(callback) {
                             let statusCode = yhr.status;
                             let responsestring = yhr.responseText;
                             if (statusCode == 200) {
-                                responsePayload = JSON.parse(responsestring);
-                                store.setSessionToken(responsePayload);
-                                console.log(store.config.sessionToken.expires);
-                                callback(false);
-                                
+                                store.setSessionToken(responsestring)
                             } else {
                                 console.log("Something wong");
                                 store.setSessionToken(false);
@@ -768,78 +761,74 @@ if (document.getElementById('management')) {
 // Load the orders
 store.loadOrders = function() {
     if (document.getElementById('table-orders')) {
-        if (store.config.sessionToken) {
-            var xhr = new XMLHttpRequest();
-            // The request is called to collect data from all order files into one session file, named with the admin username
-            xhr.open('POST', 'api/orders/view');
-            xhr.setRequestHeader("Content-type", "application/json");
-            xhr.onreadystatechange = function() {
-                if(xhr.readyState == XMLHttpRequest.DONE) {
-                    var statusCode = xhr.status;
-                    var responseReturned = xhr.responseText;
-                    var responseunsorted = JSON.parse(responseReturned);
-                    var responseobject = responseunsorted.sort(function(a,b) {
-                        let x = JSON.parse(a);
-                        let y = JSON.parse(b);
-                        return x.orderId - y.orderId;
-                    })
-                    // load the orders into orders.html
-                    var tableElement = document.getElementById('table-orders');
-                    var orderCount = responseobject.length;
-                    for (let i = 0; i < orderCount; i++) {
-                        let obj = JSON.parse(responseobject[i]);
-                        let tableRow = document.createElement('tr');
-                        // Convert date
-                        var d = new Date(obj.time);
-                        // Form order list and total price
-                        let itemString = "";
-                        let totalPrice = 0;
-                        let itemsobject = obj.order;
-                        for (let i = 0; i < itemsobject.length; i++) {
-                            let itemName = itemsobject[i].name;
-                            let itemQuantity = itemsobject[i].quantity;
-                            let itemPrice = itemsobject[i].price.replace("$","");
-                            itemString += itemName + " (" + itemQuantity + " x " + itemPrice + ")<br>";
-                            totalPrice += Number(itemQuantity) * Number(itemPrice);
-                        };
-                        totalPrice = store.fixThePrice(totalPrice);
-                        // Form the action button
-                        let buttonHTML = '';
-                        if (obj.status.trim() == 'Waiting for payment') {
-                            buttonHTML = `<button type="button" class="orders-action">Confirm payment</button>`;
-                        };
-                        if (obj.status.trim() == 'Payment received. Processing') {
-                            buttonHTML = '<button type="button" class="orders-action">Ship</button>'
-                        };
-                        if (obj.status.trim() == 'Shipped') {
-                            buttonHTML = '<button type="button" class="orders-action" disabled>Done</button>';
-                        }
-                        tableRow.innerHTML = `<td>${obj.orderId}</td>
-                        <td>${d.toLocaleString()}</th>
-                        <td>${obj.fullName}</td>
-                        <td>${obj.address[0]}<br>${obj.address[1]}</td>
-                        <td>${obj.email}</td>
-                        <td>${itemString}</td>
-                        <td>$${totalPrice}</td>
-                        <td>${obj.status}</td>
-                        <td><div class="orders-action-column">${buttonHTML} <div class="orders-delete">X</div></div></td>`;
-                        tableElement.append(tableRow);
-                        document.getElementsByClassName('orders-action')[i].addEventListener('click',store.adminUpdateOrderStatus);
-                        document.getElementsByClassName('orders-delete')[i].addEventListener('click',store.adminDeleteOrder);
+        var xhr = new XMLHttpRequest();
+        // The request is called to collect data from all order files into one session file, named with the admin username
+        xhr.open('POST', 'api/orders/view');
+        xhr.setRequestHeader("Content-type", "application/json");
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState == XMLHttpRequest.DONE) {
+                var statusCode = xhr.status;
+                var responseReturned = xhr.responseText;
+                var responseunsorted = JSON.parse(responseReturned);
+                var responseobject = responseunsorted.sort(function(a,b) {
+                    let x = JSON.parse(a);
+                    let y = JSON.parse(b);
+                    return x.orderId - y.orderId;
+                });
+                // load the orders into orders.html
+                var tableElement = document.getElementById('table-orders');
+                var orderCount = responseobject.length;
+                for (let i = 0; i < orderCount; i++) {
+                    let obj = JSON.parse(responseobject[i]);
+                    let tableRow = document.createElement('tr');
+                    // Convert date
+                    var d = new Date(obj.time);
+                    // Form order list and total price
+                    let itemString = "";
+                    let totalPrice = 0;
+                    let itemsobject = obj.order;
+                    for (let i = 0; i < itemsobject.length; i++) {
+                        let itemName = itemsobject[i].name;
+                        let itemQuantity = itemsobject[i].quantity;
+                        let itemPrice = itemsobject[i].price.replace("$","");
+                        itemString += itemName + " (" + itemQuantity + " x " + itemPrice + ")<br>";
+                        totalPrice += Number(itemQuantity) * Number(itemPrice);
                     };
-                }
+                    totalPrice = store.fixThePrice(totalPrice);
+                    // Form the action button
+                    let buttonHTML = '';
+                    if (obj.status.trim() == 'Waiting for payment') {
+                        buttonHTML = `<button type="button" class="orders-action">Confirm payment</button>`;
+                    };
+                    if (obj.status.trim() == 'Payment received. Processing') {
+                        buttonHTML = '<button type="button" class="orders-action">Ship</button>'
+                    };
+                    if (obj.status.trim() == 'Shipped') {
+                        buttonHTML = '<button type="button" class="orders-action" disabled>Done</button>';
+                    }
+                    tableRow.innerHTML = `<td>${obj.orderId}</td>
+                    <td>${d.toLocaleString()}</th>
+                    <td>${obj.fullName}</td>
+                    <td>${obj.address[0]}<br>${obj.address[1]}</td>
+                    <td>${obj.email}</td>
+                    <td>${itemString}</td>
+                    <td>$${totalPrice}</td>
+                    <td>${obj.status}</td>
+                    <td><div class="orders-action-column">${buttonHTML} <div class="orders-delete">X</div></div></td>`;
+                    tableElement.append(tableRow);
+                    document.getElementsByClassName('orders-action')[i].addEventListener('click',store.adminUpdateOrderStatus);
+                    document.getElementsByClassName('orders-delete')[i].addEventListener('click',store.adminDeleteOrder);
+                };
             }
-            var tokenObject = store.config.sessionToken;
-            var payload = {
-                'username' : tokenObject.username
-            };
-            var payloadString = JSON.stringify(payload);
-            xhr.send(payloadString); 
-        } else {
-            window.location = '/login';
-        }
-    };
-}
+        };
+        var tokenObject = store.config.sessionToken;
+        var payload = {
+            'username' : tokenObject.username
+        };
+        var payloadString = JSON.stringify(payload);
+        xhr.send(payloadString); 
+    }
+};
 
 store.fixThePrice = function(num) {
     let str = String(num);
@@ -869,9 +858,9 @@ store.adminUpdateOrderStatus = function(event) {
             xhr.open('POST', 'api/orders/update');
             xhr.setRequestHeader("Content-type","application/json");
             if (store.config.sessionToken) {
-                var parsedToken = JSON.parse(store.config.sessionToken).id;
+                var parsedToken = store.config.sessionToken.id;
                 xhr.setRequestHeader("token", parsedToken);
-                var username = JSON.parse(store.config.sessionToken).username;
+                var username = store.config.sessionToken.username;
                 xhr.setRequestHeader("username", username);
             }
             xhr.onreadystatechange = function() {
@@ -880,6 +869,7 @@ store.adminUpdateOrderStatus = function(event) {
                     var responseReturned = xhr.responseText;
                     if (statusCode == 200) {
                         event.target.parentElement.innerHTML = "Order status updated";
+                        store.renewToken();
                     } else {
                         errorBox.style.display = "inline-block";
                         errorBox.innerText = responseReturned;
@@ -916,6 +906,7 @@ store.adminDeleteOrder = function(event) {
                 var responseReturned = xhr.responseText;
                 if (statusCode == 200) {
                     targetRow.innerHTML = "";
+                    store.renewToken();
                 } else {
                     console.log(responseReturned);
                 }
@@ -927,22 +918,308 @@ store.adminDeleteOrder = function(event) {
     }
 }
 
+store.adminLoadProducts = function() {
+    if (document.getElementById('table-products')) {
+        var sessionToken = store.config.sessionToken;
+        var xhr = new XMLHttpRequest();
+        xhr.open("GET","api/products/adminLoad", true);
+        xhr.setRequestHeader('Content-type','application/json');
+        if (sessionToken) {
+            xhr.setRequestHeader('username',sessionToken.username);
+            xhr.setRequestHeader('tokenid',sessionToken.id);
+        };
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState == XMLHttpRequest.DONE) {
+                var statusCode = xhr.status;
+                var responseReturned = xhr.responseText;
+                if (statusCode == 200) {
+                    var adminCatalog = JSON.parse(responseReturned);
+                    var sortedCatalog = adminCatalog.sort(function(a,b) { return a.id.replace("#","") - b.id.replace("#","") });
+                    catalog = sortedCatalog;
+                    store.adminViewProducts(sortedCatalog);
+                    store.renewToken();
+                } else if (statusCode == 403) {
+                    store.config.sessionToken = false;
+                    window.location = "/login";
+                } else {
+                    console.log(responseReturned);
+                }
+            };
+        };
+        xhr.send();
+    }
+};
+
+store.adminViewProducts = function(adminCatalog) {
+    const tableElement = document.getElementById('table-products');
+    const len = adminCatalog.length;
+    for (let i = 0; i < len; i++) {
+        let tableRow = document.createElement('tr');
+        let item = adminCatalog[i];
+        // Values
+        let itemId = item.id;
+        let imageUrl = "public/"+item.imageSrc;
+        let title = item.name;
+        let category = item.category;
+        let altTitle = item.altTitle;
+        let description = item.description;
+        let price = item.price;
+        let lastChanges = item.timeOfChanges;
+        let author = item.lastChangesBy;
+        let d = new Date(lastChanges);
+        let itemHTML = `<td>${itemId}</td>
+        <td><img class="cart-item-image" src="${imageUrl}"></td>
+        <td>${title}</td>
+        <td>${category}</td>
+        <td>${altTitle}</td>
+        <td>${description}</td>
+        <td>${price}</td>
+        <td class="products-actions-column"><button type="button" class="btn-blue btn-edit-product">Edit product</button><br><div class="remove-product">X</div></td>
+        <td>${d.toLocaleString()}</td>
+        <td>${author}</td>`
+        // append item
+        tableRow.innerHTML = itemHTML;
+        tableElement.append(tableRow);
+        document.getElementsByClassName('btn-edit-product')[i].addEventListener('click',store.adminEditProduct);
+        document.getElementsByClassName('remove-product')[i].addEventListener('click',store.adminRemoveProduct); 
+    }
+}
+
+store.adminPrepareToAddNewProduct = function() {
+    // Hide the editing form
+    document.getElementById('product-edit-form').style.display = "none";
+    // Form the new ID
+    var table = document.getElementById('table-products');
+    var orderIdStr = table.lastChild.firstChild.innerText;
+    var oldOrderIdStr = orderIdStr.replace("#","");
+    var newOrderId = Number(oldOrderIdStr) + 1;
+    if (newOrderId < 10) {
+        var newOrderIdStr = "#00" + newOrderId;
+    } else if (newOrderId < 100 && newOrderId > 9) {
+        var newOrderIdStr = "#0" + newOrderId;
+    } else {
+        var newOrderIdStr = "#" + newOrderId;
+    }
+    document.getElementById('productAddId').innerHTML = newOrderIdStr;
+    // Load categories
+    store.loadCategories(catalog);
+    let categoryTitles = pageConfig.categoryTitles;
+    let len = categoryTitles.length;
+    var selectElement = document.getElementById('productEditCategory');
+    selectElement.innerHTML = "<option></option>";
+    for (let i = 0; i < len; i++) {
+        var option = document.createElement('option');
+        let category = pageConfig.categoryTitles[i];
+        option.innerHTML = category;
+        selectElement.append(option);
+    }
+    // Hide the "Add new" button
+    document.getElementsByClassName('add-new-product')[0].style.display = "none";
+    // Display the form
+    document.getElementById('product-add-form').style.display = "block";
+};
+if (document.getElementsByClassName('add-new-product')[0]) {
+    document.getElementsByClassName('add-new-product')[0].addEventListener('click',store.adminPrepareToAddNewProduct);
+}
+
+// Adding new product
+store.adminAddNewProduct = function(event) {
+    event.preventDefault();
+    // Collect all the inputs
+    console.log("OKAY")
+    var formElement = event.target.parentElement;
+    var productId = document.getElementById("productAddId").innerText;
+    var productName = formElement.getElementsByTagName('INPUT')[0].value;
+    var altName = formElement.getElementsByTagName('INPUT')[1].value;
+    var category = formElement.getElementsByTagName('SELECT')[0].value;
+    var newCategory = formElement.getElementsByTagName('INPUT')[2].value;
+    var description = formElement.getElementsByTagName('TEXTAREA')[0].value;
+    var price = formElement.getElementsByTagName('INPUT')[3].value;
+    // Validate inputs
+    productName = typeof(productName) == 'string' && productName.trim().length > 0 ? productName.trim() : false;
+    altName = typeof(altName) == 'string' && altName.trim().length > 0 ? altName.trim() : false;
+    category = typeof(category) == 'string' && category.trim().length > 0 ? category.trim() : false;
+    newCategory = typeof(newCategory) == 'string' && newCategory.trim().length > 0 ? newCategory.trim() : false;
+    description = typeof(description) == 'string' && description.trim().length > 0 ? description.trim() : false;
+    price = typeof(price) == 'string' && price.trim().length > 0 ? price.trim() : false;
+    finalCategory = false;
+    // Decide if the category will be one form existing ones or totally new
+    if (category) {
+        finalCategory = category;
+    };
+    if (!category && newCategory) {
+        finalCategory = newCategory;
+    }
+    // Form the request to be sent
+    if (productId, productName && altName && finalCategory && description && price) {
+        var payload = {
+            'id' : productId,
+            'productName' : productName,
+            'altName' : altName,
+            'category' : finalCategory,
+            'description' : description,
+            'price' : store.fixThePrice(price),
+            'imageSrc' : 'Items/item'+productId.replace("#","")+".jpg",
+        };
+        var xhr = new XMLHttpRequest();
+        xhr.open("POST","api/products/add");
+        xhr.setRequestHeader('Content-type','application/json');
+        if (store.config.sessionToken) {
+            xhr.setRequestHeader('username', store.config.sessionToken.username);
+            xhr.setRequestHeader('tokenId', store.config.sessionToken.id);
+        };
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState == XMLHttpRequest.DONE) {
+                var statusCode = xhr.status;
+                var responseReturned = xhr.responseText;
+                if (statusCode == 200) {
+                    document.getElementById('product-add-form').style.display = "none";
+                    document.getElementsByClassName('products-table-error')[0].style.display = "inline-block";
+                    document.getElementsByClassName('products-table-error')[0].innerText = responseReturned;
+                } else {
+                    document.getElementsByClassName('products-table-error')[0].style.display = "inline-block";
+                    document.getElementsByClassName('products-table-error')[0].innerText = responseReturned;
+                };
+            }
+        };
+        var payloadString = JSON.stringify(payload);
+        xhr.send(payloadString);
+    } else {
+        document.getElementsByClassName('products-table-error')[0].style.display = "inline-block";
+        document.getElementsByClassName('products-table-error')[0].innerText = "Please fill in the required fields";
+    }
+}
+if (document.getElementById('btn-addProduct')) {
+    document.getElementById('btn-addProduct').addEventListener('click',store.adminAddNewProduct);
+}
+
+store.adminEditProduct = function(event) {
+    // Hide the add new product form and show the button
+    document.getElementById('product-add-form').style.display = "none";
+    document.getElementsByClassName('add-new-product')[0].style.display = "block";
+
+    var tableRow = event.target.parentElement.parentElement;
+    // Collect data from row
+    var productId = tableRow.childNodes[0].innerText;
+    var productTitle = tableRow.childNodes[4].innerText;
+    var productCategory = tableRow.childNodes[6].innerText;
+    var altTitle = tableRow.childNodes[8].innerText;
+    var description = tableRow.childNodes[10].innerText;
+    var price = tableRow.childNodes[12].innerText;
+    // Insert into form
+    var form = document.getElementById('product-edit-form');
+    form.style.display = "block";
+    document.getElementById('productEditId').innerHTML = productId;
+    form.getElementsByTagName('input')[0].value = productTitle;
+    form.getElementsByTagName('input')[1].value = altTitle;
+    // Load categories
+    store.loadCategories(catalog);
+    let categoryTitles = pageConfig.categoryTitles;
+    let len = categoryTitles.length;
+    var selectElement = document.getElementById('editCategories');
+    selectElement.innerHTML = "<option></option>";
+    for (let i = 0; i < len; i++) {
+        var option = document.createElement('option');
+        let category = pageConfig.categoryTitles[i];
+        if (category == productCategory.toLowerCase()) {
+            option.setAttribute("selected", "");
+        }
+        option.innerHTML = category;
+        selectElement.append(option);
+    };
+    form.getElementsByTagName('textarea')[0].value = description;
+    form.getElementsByTagName('input')[3].value = price;
+};
+
+store.adminSaveProductChanges = function(event) {
+    event.preventDefault();
+    var errorBox = document.getElementsByClassName('products-table-error')[0]
+    // Collect form data 
+    var form = document.getElementById('product-edit-form');
+    var productId = document.getElementById('productEditId').innerHTML;
+    var productTitle = form.getElementsByTagName('input')[0].value;
+    var altTitle = form.getElementsByTagName('input')[1].value;
+    var productDescription = form.getElementsByTagName('textarea')[0].value;
+    var productPrice = form.getElementsByTagName('input')[3].value;
+    // Check if there is a new category:
+    if (form.getElementsByTagName('input')[2].value !== "") {
+        var productCategory = form.getElementsByTagName('input')[2].value;
+    } else {
+        var productCategory = document.getElementById("editCategories").value;
+    }
+    // Form the request
+    if (productId && productTitle && altTitle && productDescription && productPrice && productCategory) {
+        var xhr = new XMLHttpRequest();
+        xhr.open('PUT','api/products/edit');
+        xhr.setRequestHeader('Content-Type','application/json');
+        if (store.config.sessionToken) {
+            xhr.setRequestHeader('username', store.config.sessionToken.username);
+            xhr.setRequestHeader('tokenid', store.config.sessionToken.id);
+        };
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState == XMLHttpRequest.DONE) {
+                var statusCode = xhr.status;
+                var responseReturned = xhr.responseText;
+                errorBox.style.display = "inline-block";
+                errorBox.innerText = responseReturned;
+                if (statusCode == 200) {
+                    form.style.display = "none";
+                }
+            }
+        };
+        var payload = {
+            'productId' : productId,
+            'productName' : productTitle, 
+            'altName' : altTitle,
+            'productDescription' : productDescription, 
+            'productPrice' : productPrice,
+            'productCategory' : productCategory,
+        };
+        var payloadString = JSON.stringify(payload);
+        xhr.send(payloadString);
+    } else {
+        errorBox.style.display = "inline-block";
+        errorBox.innerText = "Please fill in the required fields";
+    }
+}
+
+if (document.getElementById('btn-editProduct')) {
+    document.getElementById('btn-editProduct').addEventListener('click', store.adminSaveProductChanges);
+}
+
+store.adminRemoveProduct = function(event) {
+    var tableRow = event.target.parentElement.parentElement;
+    var productId = tableRow.childNodes[0].innerText;
+    if (confirm(`Are you sure about deleting the product (ID: ${productId})?\nPress OK to confirm`)) {
+        var xhr = new XMLHttpRequest();
+        xhr.open('DELETE','api/products/delete');
+        xhr.setRequestHeader('Content-Type','application/json');
+        if (store.config.sessionToken) {
+            xhr.setRequestHeader('username', store.config.sessionToken.username);
+            xhr.setRequestHeader('tokenid', store.config.sessionToken.id);
+        };
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState == XMLHttpRequest.DONE) {
+                var statusCode = xhr.status;
+                var responseReturned = xhr.responseText;
+                console.log(responseReturned);
+            }
+        };
+        var payload = {
+            'productId' : productId
+        };
+        var payloadString = JSON.stringify(payload);
+        xhr.send(payloadString);
+    }
+}
 // Initializing the store functions
 store.ready = function() {
-    // Renew token
-    store.renewToken(function(err) {
-        if (err) {
-            console.log(err);
-        };
-    });
     // Get the token from local storage
-    if (!store.config.sessionToken) {
-        store.getSessionToken();
-    };
+    store.getSessionToken();
     // Load orders if the session token is set
     store.loadOrders();
-    // Redirect if there is no token in admin page
-    store.redirect();
+    // Load products if the session token is set
+    store.adminLoadProducts();
     // Loading functions
     store.displayUserName();
     store.requestCatalogData();
@@ -951,6 +1228,8 @@ store.ready = function() {
     store.updateTotal();
     store.appendUpdateTotal();
     store.updateFloatingCart();
+    // Redirect if there is no token in admin page
+    // store.redirect();
 };
 
 store.ready();

@@ -1,9 +1,1 @@
-{
-    "id" : "#003",
-    "name" : "White Coffee Mug",
-    "category" : "Coffee mugs",
-    "imageSrc" : "Items/item03.jpg",
-    "altTitle" : "White Mug",
-    "description" : "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis ligula urna, dignissim sed tristique in, vulputate at ante.",
-    "price" : "5.50"
-}
+{"id":"#003","name":"White Coffee Mug","category":"coffee mugs","imageSrc":"Items/item003.jpg","altTitle":"White Mug","description":"Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis ligula urna, dignissim sed tristique in, vulputate at ante.","price":"5.50","timeOfChanges":1572793704645,"lastChangesBy":"admin"}
