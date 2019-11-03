@@ -277,7 +277,7 @@ store.loadCatalogItems = function() {
                 <span class="item-header">${item.name}</span>
                 <div class="category-icon">
                 <img src="${iconSourceUrl}">
-                <span class="category-text">${category}</span>
+                <span class="category-text">${category.toUpperCase()}</span>
                 </div>
                 <img src="${imageSourceUrl}" alt="${item.altTitle}">
                 <span class="item-description">${item.description}</span>
@@ -1188,6 +1188,7 @@ if (document.getElementById('btn-editProduct')) {
 }
 
 store.adminRemoveProduct = function(event) {
+    var errorBox = document.getElementsByClassName('products-table-error')[0]
     var tableRow = event.target.parentElement.parentElement;
     var productId = tableRow.childNodes[0].innerText;
     if (confirm(`Are you sure about deleting the product (ID: ${productId})?\nPress OK to confirm`)) {
@@ -1202,7 +1203,11 @@ store.adminRemoveProduct = function(event) {
             if (xhr.readyState == XMLHttpRequest.DONE) {
                 var statusCode = xhr.status;
                 var responseReturned = xhr.responseText;
-                console.log(responseReturned);
+                errorBox.style.display = "inline-block";
+                errorBox.innerText = responseReturned;
+                if (statusCode == 200) {
+                    tableRow.innerHTML = "";
+                }
             }
         };
         var payload = {
