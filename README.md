@@ -3,10 +3,12 @@
 An online shop API, created by using Node JS
 
 To use:
+
 Command line:
 - npm install nodemailer 
 - node index.js 
-Browser
+
+Browser:
 http://localhost:3010
 https://localhost:3011
 
