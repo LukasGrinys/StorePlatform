@@ -24,7 +24,6 @@ store.requestCatalogData = function()  {
                     var responseReturned = xhr.responseText;
                     var obj = JSON.parse(responseReturned);
                     catalog = obj;
-                    store.appendPageNumbers();
                     store.loadCategories(catalog);
                     store.loadCatalogItems();
                     store.closeLoadingScreen();
@@ -126,10 +125,11 @@ if (document.getElementsByClassName('sort-list')[0]) {
 store.updateItemsPerPage = function() {
     store.openLoadingScreen(); // Loading..
     pageConfig.itemsPerPage = document.getElementsByClassName('page-quantity')[0].value;
+    pageConfig.pageNumber = 1;
+    store.requestCatalogData();
 }
 if (document.getElementsByClassName('page-quantity')[0]) {
     document.getElementsByClassName('page-quantity')[0].addEventListener('change',store.updateItemsPerPage);
-    document.getElementsByClassName('page-quantity')[0].addEventListener('change',store.requestCatalogData);
 };
 
 // Append page number elements
@@ -210,6 +210,12 @@ store.pageNumbers.bind = function() {
 store.loadCatalogItems = function() {
     var catalogElement = document.getElementsByClassName('shop-items')[0];
     if (catalogElement) {
+        // Set the page elements
+        if (catalog.length % pageConfig.itemsPerPage === 0) {
+            pageConfig.pagesNeeded = catalog.length / pageConfig.itemsPerPage;
+        } else {
+            pageConfig.pagesNeeded = Math.floor(catalog.length / pageConfig.itemsPerPage) + 1;
+        }
         // Deleting anything that was before
         catalogElement.innerHTML = "";
         store.openLoadingScreen(); // Loading...
@@ -294,6 +300,7 @@ store.loadCatalogItems = function() {
             store.addingButtonFunctions();
         }
     };
+    store.appendPageNumbers();
 }
 
 
@@ -663,7 +670,15 @@ store.setSessionToken = function(token) {
 store.getSessionToken = function(){
     var tokenString = localStorage.getItem('token');
     var token = JSON.parse(tokenString);
-    store.config.sessionToken = token;
+    // Check if it isn't expired
+    if (token) {
+        if (store.config.sessionToken.expires < Date.now()) {
+            store.config.sessionToken = (false);
+            localStorage.setItem('token', false);
+        } else {
+            store.config.sessionToken = token;
+        }
+    };
 };
 
 // Extend the expiration of the token
@@ -679,7 +694,6 @@ store.renewToken = function(callback) {
         xhr.setRequestHeader("Content-type", "application/json");
         xhr.onreadystatechange = function() {
             if (xhr.readyState == XMLHttpRequest.DONE) {
-                
                 var statusCode = xhr.status;
                 var responseReturned = xhr.responseText;
                 if (statusCode == 200) {
@@ -693,7 +707,6 @@ store.renewToken = function(callback) {
                             if (statusCode == 200) {
                                 store.setSessionToken(responsestring)
                             } else {
-                                console.log("Something wong");
                                 store.setSessionToken(false);
                                 callback(true);
                             }
@@ -701,7 +714,7 @@ store.renewToken = function(callback) {
                     }
                     yhr.send();
                 } else {
-                    console.log("Sum ting wong");
+                    //
                 }
             };
         }
@@ -888,6 +901,7 @@ store.adminUpdateOrderStatus = function(event) {
 }
 
 store.adminDeleteOrder = function(event) {
+    var errorBox = document.getElementsByClassName('orders-table-error')[0];
     var targetRow = event.target.parentElement.parentElement.parentElement;
     var orderId = targetRow.firstChild.innerText;
     var username = store.config.sessionToken.username;
@@ -907,9 +921,9 @@ store.adminDeleteOrder = function(event) {
                 if (statusCode == 200) {
                     targetRow.innerHTML = "";
                     store.renewToken();
-                } else {
-                    console.log(responseReturned);
-                }
+                };
+                errorBox.style.display = "inline-block";
+                errorBox.innerText = responseReturned;
             }
         };
         xhr.send();

@@ -168,6 +168,11 @@ html, body {
     position: sticky;
     top: 50px;
   }
+  .add-new-product {
+    -webkit-position: sticky;
+    position: sticky;
+    top: 50px;
+  }
 }
 .floating-cart:hover {
   opacity: 1;
@@ -420,7 +425,7 @@ h1 {
 }
 .item-container {
   width: 350px;
-  height: 450px;
+  height: 420px;
   margin: 15px;
   background-color: white;
   padding: 15px;
@@ -467,6 +472,7 @@ h1 {
 }
 .item-container img {
   width: 100%;
+  height: 230px;
   object-fit: cover;
   border-radius: 0.2em;
 }
@@ -887,15 +893,6 @@ tr:hover td{
   align-items: center;
   font-size: 0.8em;
 }
-.orders-table-error {
-  display:none;
-  font-size: 0.7em;
-  background-color:rgb(199, 100, 70);
-  padding: 10px;
-  color: white;
-  margin-bottom: 5px;
-  width: 98%;
-}
 
 /*PRODUCT EDITING*/
 .products-edit-wrapper {
@@ -941,13 +938,6 @@ tr:hover td{
   transition-duration: 0.3s;
   -webkit-transition-duration: 0.3s;
 }
-@supports (position: sticky) {
-  .add-new-product {
-    -webkit-position: sticky;
-    position: sticky;
-    top: 50px;
-  }
-}
 .add-new-product:hover {
   opacity: 1;
   transition-duration: 0.3s;
@@ -977,7 +967,7 @@ textarea {
   margin: 10px 0;
   border-radius: 4px;
 }
-.products-table-error {
+.products-table-error, .orders-table-error {
   padding: 10px;
   width: 100%;
   text-align: center;
