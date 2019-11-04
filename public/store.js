@@ -160,7 +160,7 @@ store.appendPageNumbers = function() {
 store.pageNumbers = {};
 store.pageNumbers.goToFirst = function() {
     if (pageConfig.pageNumber !== 1) {
-        pageConfig.pageNumber;
+        pageConfig.pageNumber = 1;
         store.requestCatalogData();
     };
 }
