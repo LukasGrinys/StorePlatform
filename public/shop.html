@@ -32,7 +32,6 @@
       <a href="/checkOrder">Check order</a>
       <a href="#" id="management">Management</a>
     </div>
-    <div class="demo" id="demo"></div>
     <div class="floating-cart"><a href="#cart" class="floating-cart-text">Cart</a></div>
     <div class='container'>
       <h1>Catalog</h1>
@@ -103,17 +102,17 @@
           <form class="order-details" id="sendOrder" action="/api/orders/send" method="POST">
             <div class="formError"></div>
             <span><b>Enter your full name:*</b></span>
-            <input type="text" name="fullName" id="inputFullName" value="John Doe" required><br>
+            <input type="text" name="fullName" id="inputFullName" placeholder="John Doe" required><br>
             <span><b>Enter your e-mail*</b></span>
-            <input type="e-mail" name="email" id="inputEmail" value="person@someemail.com" required><br>
+            <input type="e-mail" name="email" id="inputEmail" placeholder="username@someemail.com" required><br>
             <span><b>Enter the shipping address:</b></span><br>
             <span>Address line 1:*</span>
-            <input type="textbox" name="address-line-one" id="inputAddOne" value="Wonderland avenue 120" required><br>
+            <input type="textbox" name="address-line-one" id="inputAddOne" placeholder="Main st. 1" required><br>
             <span>Address line 2:</span>
-            <input type="textbox" name="address-line-two" id="inputAddTwo" value="Wondertown, Wonderland" required><br>
+            <input type="textbox" name="address-line-two" id="inputAddTwo" placeholder="City, State, Country" required><br>
             <div class="agreement-field">
               <input type='checkbox' name="agreement" id="agreement" checked>
-              <label for="agreement">I agree with <a href="agreement.html" target="_blank">terms and agreements</a></label>
+              <label for="agreement">I agree with <a href="#" target="_blank">terms and agreements</a></label>
             </div><br>
             <span style="font-size:0.8em">* - required fields</span><br>
             <span style="font-size:0.9em">Make sure that your order is correctly formed on the bill at right<br>
@@ -122,9 +121,7 @@
           </form>
           <div class="order-bill">
             <h2>Bill:</h2>
-            <span>Item #01 x 1 ($9.99)</span><br>
-            <span>Item #03 x 2 ($5.50)</span><br>
-            <span class="bill-total"><b>Total: </b>$20.99</span>
+            <span class="bill-total"></span>
           </div>
         </div>
       

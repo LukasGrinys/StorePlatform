@@ -443,6 +443,8 @@ store.proceedToCheckout = function(){
     // Collecting the data from cart
     var cart = document.getElementsByClassName('cart')[0];
     for (let i = 0; i < cartItemCount; i++) {
+        // Get item id 
+        var cartItemId = document.getElementsByClassName('cart-id')[i+1].innerText;
         // Get item name
         var cartItemName = document.getElementsByClassName('cart-item')[i+1].innerText;
         // Get item quantity
@@ -451,15 +453,15 @@ store.proceedToCheckout = function(){
         // Get item price
         var cartItemPrice = document.getElementsByClassName('cart-price')[i+1].innerText;
         // Form the text
-        str += '<span>' + cartItemName + ' x ' + cartQuantity + ' (' + cartItemPrice + ')</span><br>';
-
+        str += '<span>' + cartItemId + cartItemName + ' x ' + cartQuantity + ' (' + cartItemPrice + ')</span><br>';
         // Form the orderInfo array of objects to be sent later as payload
-        var itemJSON = {
+        var itemObj = {
+            'id' : cartItemId,
             'name' : cartItemName,
             'quantity' : cartQuantity,
             'price' : cartItemPrice 
         };
-        orderInfo.push(itemJSON);
+        orderInfo.push(itemObj);
     };
     // Get the total
     var totalStr = document.getElementsByClassName('cart-total')[0].innerText;
@@ -752,13 +754,6 @@ if (document.getElementById('admin-logout')) {
     document.getElementById('admin-logout').addEventListener('click',store.logAdminOut);
 }
 
-// Redirect, if user tries to access unauthorised pages without a token
-store.redirect = function() {
-    if (document.getElementsByClassName('navigation-admin')[0] && !store.config.sessionToken) {
-        window.location = '/login';
-    };
-};
-
 // If user is logged in, skip the "Log in" page
 store.openManagementPage = function() {
     if (store.config.sessionToken) {
@@ -804,7 +799,8 @@ store.loadOrders = function() {
                         let itemName = itemsobject[i].name;
                         let itemQuantity = itemsobject[i].quantity;
                         let itemPrice = itemsobject[i].price.replace("$","");
-                        itemString += itemName + " (" + itemQuantity + " x " + itemPrice + ")<br>";
+                        let itemId = itemsobject[i].id;
+                        itemString += itemId + " " + itemName + " (" + itemQuantity + " x " + itemPrice + ")<br>";
                         totalPrice += Number(itemQuantity) * Number(itemPrice);
                     };
                     totalPrice = store.fixThePrice(totalPrice);
@@ -1247,8 +1243,6 @@ store.ready = function() {
     store.updateTotal();
     store.appendUpdateTotal();
     store.updateFloatingCart();
-    // Redirect if there is no token in admin page
-    // store.redirect();
 };
 
 store.ready();
