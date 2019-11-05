@@ -1,0 +1,22 @@
+{
+  "name": "nodemailer",
+  "version": "1.0.0",
+  "description": "Module for sending e-mail",
+  "main": "index.js",
+  "directories": {
+    "lib": "lib"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/LukasGrinys/StorePlatform.git"
+  },
+  "author": "Lukas",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/LukasGrinys/StorePlatform/issues"
+  },
+  "homepage": "https://github.com/LukasGrinys/StorePlatform#readme"
+}
