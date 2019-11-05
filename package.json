@@ -1,22 +1,17 @@
 {
-  "name": "nodemailer",
-  "version": "1.0.0",
-  "description": "Module for sending e-mail",
-  "main": "index.js",
-  "directories": {
-    "lib": "lib"
-  },
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/LukasGrinys/StorePlatform.git"
-  },
-  "author": "Lukas",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/LukasGrinys/StorePlatform/issues"
-  },
-  "homepage": "https://github.com/LukasGrinys/StorePlatform#readme"
+    "name": "storeplatform",
+    "preferGlobal": true,
+    "version": "1.0.0",
+    "author": "Lukas Grinys <lukas.grinys@gmail.com>",
+    "description": "An online store platform API",
+    "license": "MIT",
+    "engines": {
+        "node": ">=0.10"
+    },
+    "scripts": {
+        "start": "node ./index.js"
+    },
+    "dependencies": {
+        "nodemailer": "6.3.1"
+    }
 }
