@@ -76,13 +76,12 @@ store.displayUserName = function() {
 // Add the filterapplying function (applied filters - global variable, so the other displaying functions (sorting/paging) can use it)
 var filtersApplied = [];
 store.applyFilter = function() {
-    filtersApplied = [];
     var filtersList = document.getElementsByClassName('filter-list')[0]
     var filterCount = (filtersList.childElementCount - 1) / 3;
     for (let i = 0; i < filterCount; i++) {
         let filterToCheck = filtersList.getElementsByTagName('input')[i];
         let filterClass = filterToCheck.className;
-        let filterName = filterClass.toLowerCase().slice(4,filterClass.length);
+        let filterName = filterClass.slice(4,filterClass.length);
         let filterNameFixed = filterName.replace("-"," ");
         if (filterToCheck.checked == true) {
             filtersApplied.push(filterNameFixed);
@@ -222,7 +221,7 @@ store.loadCatalogItems = function() {
         // Filter out the catalog;
         var filteredCatalog = [];
         for (let i = 0; i < catalog.length; i++) {
-            let itemCategory = catalog[i].category.toLowerCase().trim();
+            let itemCategory = catalog[i].category.trim();
             if (filtersApplied.indexOf(itemCategory) > - 1 || filtersApplied.length == 0) {
                 filteredCatalog.push(catalog[i]);
             }
@@ -283,7 +282,7 @@ store.loadCatalogItems = function() {
                 <span class="item-header">${item.name}</span>
                 <div class="category-icon">
                 <img src="${iconSourceUrl}">
-                <span class="category-text">${category.toUpperCase()}</span>
+                <span class="category-text">${category}</span>
                 </div>
                 <img src="${imageSourceUrl}" alt="${item.altTitle}">
                 <span class="item-description">${item.description}</span>
