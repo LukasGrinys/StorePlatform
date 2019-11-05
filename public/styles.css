@@ -100,7 +100,8 @@ html, body {
   border: none;
 }
 .header {
-  width: 100vw;
+  width: 100%;
+  overflow: hidden;
   height: 250px;
   background-color:#87806D ;
   color: white;
@@ -330,7 +331,7 @@ h1 {
   text-align: center;
 
 }
-.filter-list input[type="checkbox"] {
+.filter-list input[type='checkbox'] {
   position: absolute;
   opacity: 0;
 }
@@ -353,7 +354,7 @@ h1 {
 .filter-list label:hover:before {
   background-color: #73A1B0;
 }
-.filter-list input[type="checkbox"]:checked + label:before {
+.filter-list input[type='checkbox']:checked + label:before {
   background-color: #73A1B0;
   content: "\2713";
 }

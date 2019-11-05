@@ -23,6 +23,7 @@
       <h1>Check your order status</h1>
       <form class="check-order" id="checkOrder" action="/api/orders/check" method="GET">
         <span>Enter your 10-digit order ID that was sent to your e-mail:</span><br>
+        <span style="font-size:0.8em"><b>Developers note:</b> ID was sent to console</span>
         <input type="number" name="orderId" id="orderId"><br>
         <button type="submit" class="btn-blue btn-checkOrder">Check</button><br>
         <div class="responseBox"></div>

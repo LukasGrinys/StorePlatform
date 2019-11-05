@@ -38,13 +38,14 @@ store.requestCatalogData = function()  {
 store.loadCategories = function(data) {
     for (let i = 0; i < data.length; i++) {
         item = data[i];
-        categoryName = item.category.toLowerCase();
+        categoryName = item.category;
         if (pageConfig.categoryTitles.indexOf(categoryName) > -1) {
             // Then we continue;
         } else {
             pageConfig.categoryTitles.push(categoryName);
         }
     }
+    store.appendFilterOptions();
 }
 
 // Loading screen functions
@@ -76,6 +77,7 @@ store.displayUserName = function() {
 // Add the filterapplying function (applied filters - global variable, so the other displaying functions (sorting/paging) can use it)
 var filtersApplied = [];
 store.applyFilter = function() {
+    filtersApplied = [];
     var filtersList = document.getElementsByClassName('filter-list')[0]
     var filterCount = (filtersList.childElementCount - 1) / 3;
     for (let i = 0; i < filterCount; i++) {
@@ -90,9 +92,35 @@ store.applyFilter = function() {
     store.openLoadingScreen(); // loading...
     store.requestCatalogData();
 }
-if (document.getElementsByClassName('filter-btn')[0]) {
-    var filterButton = document.getElementsByClassName('filter-btn')[0];
-    filterButton.addEventListener('click',store.applyFilter);
+
+store.appendFilterOptions = function() {
+    var filterList = document.getElementsByClassName('filter-list')[0];
+    filterList.innerHTML = "";
+    if (filterList) {
+        var categories = pageConfig.categoryTitles;
+        for (let i = 0; i < categories.length; i++) {
+            var categoryHTML = categories[i].replace(" ","-");
+            var checkboxElement = document.createElement('input');
+            checkboxElement.setAttribute('type','checkbox');
+            checkboxElement.setAttribute('id','cat'+i+1);
+            checkboxElement.setAttribute('class','cat-'+categoryHTML);
+            if (filtersApplied.indexOf(categories[i]) > -1) {
+                checkboxElement.setAttribute('checked','');
+            }
+            var labelElement = document.createElement('label');
+            labelElement.setAttribute('for','cat'+i+1);
+            labelElement.innerText = categories[i];
+            var breakElement = document.createElement('br');
+            filterList.append(checkboxElement, labelElement, breakElement);   
+        }
+        var button = document.createElement('button');
+        button.setAttribute('type','button');
+        button.setAttribute('class','btn-blue filter-btn');
+        button.innerText = "Apply filter";
+        button.addEventListener('click', store.applyFilter);
+        filterList.append(button);
+    };
+    console.log(filterList);
 };
 
 store.checkSortingType = function() {
@@ -203,8 +231,6 @@ store.pageNumbers.bind = function() {
         });
     }
 }
-
-
 // Append all catalog items to the page
 store.loadCatalogItems = function() {
     var catalogElement = document.getElementsByClassName('shop-items')[0];
@@ -1035,7 +1061,6 @@ if (document.getElementsByClassName('add-new-product')[0]) {
 store.adminAddNewProduct = function(event) {
     event.preventDefault();
     // Collect all the inputs
-    console.log("OKAY")
     var formElement = event.target.parentElement;
     var productId = document.getElementById("productAddId").innerText;
     var productName = formElement.getElementsByTagName('INPUT')[0].value;
@@ -1121,6 +1146,7 @@ store.adminEditProduct = function(event) {
     document.getElementById('productEditId').innerHTML = productId;
     form.getElementsByTagName('input')[0].value = productTitle;
     form.getElementsByTagName('input')[1].value = altTitle;
+    form.getElementsByTagName('input')[2].value = "";
     // Load categories
     store.loadCategories(catalog);
     let categoryTitles = pageConfig.categoryTitles;
@@ -1130,7 +1156,7 @@ store.adminEditProduct = function(event) {
     for (let i = 0; i < len; i++) {
         var option = document.createElement('option');
         let category = pageConfig.categoryTitles[i];
-        if (category == productCategory.toLowerCase()) {
+        if (category == productCategory) {
             option.setAttribute("selected", "");
         }
         option.innerHTML = category;
@@ -1138,6 +1164,7 @@ store.adminEditProduct = function(event) {
     };
     form.getElementsByTagName('textarea')[0].value = description;
     form.getElementsByTagName('input')[3].value = price;
+    scrollTo(0,30);
 };
 
 store.adminSaveProductChanges = function(event) {
