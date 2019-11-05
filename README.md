@@ -3,9 +3,14 @@
 An online shop API, created by using Node JS
 
 To use:
-1. npm install nodemailer
-2. node index.js
-3. localhost:3010
+
+Command line:
+- npm install nodemailer 
+- node index.js 
+
+Browser:
+http://localhost:3010
+https://localhost:3011
 
 For management:
 - Image files for new products must be uploaded to public/Items as "item<productIdNumber>.jpg" 
