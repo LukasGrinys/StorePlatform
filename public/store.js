@@ -1010,7 +1010,7 @@ store.adminViewProducts = function(adminCatalog) {
         <td>${altTitle}</td>
         <td>${description}</td>
         <td>${price}</td>
-        <td class="products-actions-column"><button type="button" class="btn-blue btn-edit-product">Edit product</button><br><div class="remove-product">X</div></td>
+        <td><div class="products-actions-column"><button type="button" class="btn-blue btn-edit-product">Edit product</button><br><div class="remove-product">X</div></div></td>
         <td>${d.toLocaleString()}</td>
         <td>${author}</td>`
         // append item
@@ -1132,7 +1132,7 @@ store.adminEditProduct = function(event) {
     // Hide the add new product form and show the button
     document.getElementById('product-add-form').style.display = "none";
     document.getElementsByClassName('add-new-product')[0].style.display = "block";
-    var tableRow = event.target.parentElement.parentElement;
+    var tableRow = event.target.parentElement.parentElement.parentElement;
     // Collect data from row
     var productId = tableRow.childNodes[0].innerText;
     var productTitle = tableRow.childNodes[4].innerText;
