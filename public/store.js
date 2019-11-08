@@ -45,7 +45,9 @@ store.loadCategories = function(data) {
             pageConfig.categoryTitles.push(categoryName);
         }
     }
-    store.appendFilterOptions();
+    if (document.getElementsByClassName('filter-list')[0]) {
+        store.appendFilterOptions();
+    }
 }
 
 // Loading screen functions
@@ -120,7 +122,6 @@ store.appendFilterOptions = function() {
         button.addEventListener('click', store.applyFilter);
         filterList.append(button);
     };
-    console.log(filterList);
 };
 
 store.checkSortingType = function() {
@@ -1131,7 +1132,6 @@ store.adminEditProduct = function(event) {
     // Hide the add new product form and show the button
     document.getElementById('product-add-form').style.display = "none";
     document.getElementsByClassName('add-new-product')[0].style.display = "block";
-
     var tableRow = event.target.parentElement.parentElement;
     // Collect data from row
     var productId = tableRow.childNodes[0].innerText;
