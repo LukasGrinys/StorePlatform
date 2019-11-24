@@ -91,11 +91,12 @@
         <div class='cart-row cart-total'>
           <span>Cart is empty</span>
         </div>
-        <button type="button" class="purchase-btn btn-blue"><a href="#checkout">Proceed to checkout</a></button>
+        <button type="button" class="purchase-btn btn-blue">Proceed to checkout</button>
       </div>
 
       <div class="checkout" id="checkout">
         <h1>Checkout</h1>
+        <div class="close-checkout">X</div>
         <div class="checkout-container">
           <form class="order-details" id="sendOrder" action="/api/orders/send" method="POST">
             <div class="formError"></div>
@@ -111,10 +112,9 @@
             <div class="agreement-field">
               <input type='checkbox' name="agreement" id="agreement">
               <label for="agreement">I agree with <a href="#" target="_blank">terms and agreements</a></label>
-            </div><br>
+            </div>
             <span style="font-size:0.8em">* - required fields</span><br>
-            <span style="font-size:0.9em">Make sure that your order is correctly formed on the bill at right<br>
-            In case you forgot something, hit "Proceed to checkout" again to checkout the products form the cart</span>
+            <span style="font-size:0.9em">Make sure that your order is correctly formed on the bill at right</span>
             <button type="submit" class="order-send-btn btn-blue">Confirm order</button>
           </form>
           <div class="order-bill">

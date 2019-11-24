@@ -662,14 +662,43 @@ input[type=number]::-webkit-outer-spin-button {
 }
 /* CHECKOUT */
 .checkout {
+  position: fixed;
+  z-index: 100;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
   padding: 10px;
   display: none;
+  background-color: rgba(0,0,0,0.9);
+  opacity: 0;
+  transition-duration: 0.8s;
+  -webkit-transition-duration: 0.8s;
 }
 .checkout-container {
+  position: relative;
   display: flex;
-  flex-wrap: wrap-reverse;
-  justify-content: space-around;
+  justify-content: center;
   align-items: center;
+}
+.checkout h1 {
+  color: white;
+}
+.close-checkout {
+  color: #f2f2f2;
+  opacity: 0.3;
+  width: 35px;
+  height: 35px;
+  margin: 0 auto 5px;
+  font-size: 1.8em;
+  text-align: center;
+  font-weight: bold;
+  cursor: pointer;
+  transition-duration: 0.5s;
+  -webkit-transition-duration: 0.5s;
+}
+.close-checkout:hover {
+  opacity: 1;
 }
 .order-details {
   width: 280px;
@@ -698,6 +727,8 @@ input[type=number]::-webkit-outer-spin-button {
   flex: 10%;
 }
 .order-bill {
+  display: none;
+  margin-left: 25px;
   margin-bottom: 20px;
   background-color: white;
   width: 280px;

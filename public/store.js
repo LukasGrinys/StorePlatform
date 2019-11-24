@@ -463,6 +463,7 @@ store.proceedToCheckout = function(){
     // Showing the checkout div section
     var checkoutElement = document.getElementsByClassName('checkout')[0];
     checkoutElement.style.display = 'block';
+    checkoutElement.style.opacity = '1';
     // Forming the bill text
     var billText = document.getElementsByClassName('order-bill')[0];
     var str = '<h2>Bill</h2>';
@@ -479,7 +480,7 @@ store.proceedToCheckout = function(){
         // Get item price
         var cartItemPrice = document.getElementsByClassName('cart-price')[i+1].innerText;
         // Form the text
-        str += '<span>' + cartItemId + cartItemName + ' x ' + cartQuantity + ' (' + cartItemPrice + ')</span><br>';
+        str += '<span>' + cartItemId + " " + cartItemName + ' x ' + cartQuantity + ' (' + cartItemPrice + ')</span><br>';
         // Form the orderInfo array of objects to be sent later as payload
         var itemObj = {
             'id' : cartItemId,
@@ -495,6 +496,18 @@ store.proceedToCheckout = function(){
     // Storing the text;
     billText.innerHTML = str;
 };
+
+store.closeCheckoutWindow = function() {
+    orderInfo = [];
+    var checkoutElement = document.getElementsByClassName('checkout')[0];
+    checkoutElement.style.opacity = '0';
+    setTimeout( function() {
+        checkoutElement.style.display = 'none';
+    }, 800)
+}
+if (document.getElementsByClassName('close-checkout')[0]) {
+    document.getElementsByClassName('close-checkout')[0].addEventListener('click', store.closeCheckoutWindow);
+}
 
 store.updateFloatingCart = function() {
     var floatingCart = document.getElementsByClassName('floating-cart-text')[0];
@@ -685,7 +698,7 @@ store.adminLogin = function(event) {
     var payloadString = JSON.stringify(payload);
     xhr.send(payloadString); 
 };
-if (document.getElementsByClassName('employee-login-btn')[0]) {
+if (document.getElementById('login-btn')) {
     document.getElementsByClassName('employee-login-btn')[0].addEventListener('click',store.adminLogin);
 };
 
