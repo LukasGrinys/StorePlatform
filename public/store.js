@@ -2,38 +2,75 @@
 var store = {};
 
 var catalog = [];
-var pageConfig = {
+const pageConfig = {
     categoryTitles : [],
     sortingType : 0, // 0 - A-Z (default) 1 - Z-A; 2-Low-High; 3 - High-Low
     itemsPerPage : 5,
     pageNumber : 1,
-    pagesNeeded : 1
+    pagesNeeded : 1,
+    mediaWidth: '540px'
 };
+var orderInfo = [];
+
 store.config = {
     'sessionToken' : false
 };
 
-var orderInfo = [];
-store.requestCatalogData = function()  {
-    var xhr = new XMLHttpRequest();
+showNav = function() {
+    let navbar = document.getElementsByClassName('navigation-bar')[0];
+    let len = navbar.getElementsByTagName('A').length;
+    for (let i = 1; i < len; i++) {
+        navbar.getElementsByTagName('A')[i].style.display = 'block';
+    }
+    document.getElementsByClassName('toggleNav')[0].style.display = 'none';
+    document.getElementsByClassName('closeNav')[0].style.display = 'block';
+
+}
+closeNav = function() {
+    let navbar = document.getElementsByClassName('navigation-bar')[0];
+    let len = navbar.getElementsByTagName('A').length;
+    for (let i = 1; i < len; i++) {
+        navbar.getElementsByTagName('A')[i].style.display = 'none';
+    }
+    document.getElementsByClassName('toggleNav')[0].style.display = 'flex';
+    document.getElementsByClassName('closeNav')[0].style.display = 'none';
+}
+addShowNav = function() {
+    let toggleNavButton = document.getElementsByClassName('toggleNav')[0];
+    if (toggleNavButton) {
+        toggleNavButton.addEventListener('click', showNav);
+    }
+}
+addCloseNav = function() {
+    let closeButton = document.getElementsByClassName('closeNav')[0];
+    if (closeButton) {
+        closeButton.addEventListener('click', closeNav);
+    }
+}
+addShowNav();
+addCloseNav();
+
+store.loadCatalog = function() {
+    const xhr = new XMLHttpRequest();
     xhr.open("GET","api/products/load", true);
     xhr.setRequestHeader("Content-Type", "application/json");
     xhr.onreadystatechange = function() {
         if (xhr.readyState == XMLHttpRequest.DONE) {
-                    var statusCode = xhr.status;
-                    var responseReturned = xhr.responseText;
-                    var obj = JSON.parse(responseReturned);
-                    catalog = obj;
-                    store.loadCategories(catalog);
-                    store.loadCatalogItems();
-                    store.closeLoadingScreen();
+                    let statusCode = xhr.status;
+                    let responseReturned = xhr.responseText;
+                    let obj = JSON.parse(responseReturned);
                     if (statusCode !== 200) {
                         console.log('Error : Could not receive catalog info')
+                    } else {
+                        catalog = obj;
+                        store.loadCategories(catalog);
+                        store.loadCatalogItems();
+                        store.closeLoadingScreen();
                     }
         };
     };
     xhr.send();
-};
+}
 
 store.loadCategories = function(data) {
     for (let i = 0; i < data.length; i++) {
@@ -64,19 +101,19 @@ store.openLoadingScreen = function() {
 
 // Showing the employee name in navigation board
 store.displayUserName = function() {
-    if (store.config.sessionToken && document.getElementsByClassName('username')[0]) {
-        var str = store.config.sessionToken;
-        document.getElementsByClassName('username')[0].innerText = str.username;
-        document.getElementsByClassName('username')[0].style.display = 'block';
-    } else if (!store.config.sessionToken && document.getElementsByClassName('username')[0]) {
-        document.getElementsByClassName('username')[0].innerText = '';
-        document.getElementsByClassName('username')[0].style.display = 'none';
+    if (window.innerWidth > pageConfig.mediaWidth) {
+        if (store.config.sessionToken && document.getElementsByClassName('username')[0]) {
+            var str = store.config.sessionToken;
+            document.getElementsByClassName('username')[0].innerText = str.username;
+            document.getElementsByClassName('username')[0].style.display = 'block';
+        } else if (!store.config.sessionToken && document.getElementsByClassName('username')[0]) {
+            document.getElementsByClassName('username')[0].innerText = '';
+            document.getElementsByClassName('username')[0].style.display = 'none';
+        }
     }
 };
 
 // PAGE OPTION FUNCTIONS for sorting, filtering and displaying items
-
-// Add the filterapplying function (applied filters - global variable, so the other displaying functions (sorting/paging) can use it)
 var filtersApplied = [];
 store.applyFilter = function() {
     filtersApplied = [];
@@ -92,7 +129,7 @@ store.applyFilter = function() {
         }
     }
     store.openLoadingScreen(); // loading...
-    store.requestCatalogData();
+    store.loadCatalog();
 }
 
 store.appendFilterOptions = function() {
@@ -143,7 +180,7 @@ store.checkSortingType = function() {
         pageConfig.sortingType = 3;
     };
     // Re-load the items
-    store.requestCatalogData();
+    store.loadCatalog();
 }
 if (document.getElementsByClassName('sort-list')[0]) {
     document.getElementsByClassName('sort-list')[0].addEventListener('change',store.checkSortingType);
@@ -154,7 +191,7 @@ store.updateItemsPerPage = function() {
     store.openLoadingScreen(); // Loading..
     pageConfig.itemsPerPage = document.getElementsByClassName('page-quantity')[0].value;
     pageConfig.pageNumber = 1;
-    store.requestCatalogData();
+    store.loadCatalog();
 }
 if (document.getElementsByClassName('page-quantity')[0]) {
     document.getElementsByClassName('page-quantity')[0].addEventListener('change',store.updateItemsPerPage);
@@ -189,32 +226,32 @@ store.pageNumbers = {};
 store.pageNumbers.goToFirst = function() {
     if (pageConfig.pageNumber !== 1) {
         pageConfig.pageNumber = 1;
-        store.requestCatalogData();
+        store.loadCatalog();
     };
 }
 store.pageNumbers.goBack = function() {
     if (pageConfig.pageNumber > 1) {
         pageConfig.pageNumber--;
-        store.requestCatalogData();
+        store.loadCatalog();
     };
 }
 store.pageNumbers.goToSpecificPage = function(n) {
     if (n !== pageConfig.pageNumber) {
         pageConfig.pageNumber = n;
-        store.requestCatalogData();
+        store.loadCatalog();
     };
  
 }
 store.pageNumbers.goForward = function() {
     if (pageConfig.pageNumber < pageConfig.pagesNeeded) {
         pageConfig.pageNumber++;
-        store.requestCatalogData();
+        store.loadCatalog();
     };
 }
 store.pageNumbers.goToLast = function() {
     if (pageConfig.pageNumber !== pageConfig.pagesNeeded) {
         pageConfig.pageNumber = pageConfig.pagesNeeded;
-        store.requestCatalogData();
+        store.loadCatalog();
     }
 }
 // Bind the functions to their elements
@@ -1271,12 +1308,16 @@ store.ready = function() {
     // Get the token from local storage
     store.getSessionToken();
     // Load orders if the session token is set
-    store.loadOrders();
+    if (document.getElementById('table-orders')) {
+        store.loadOrders();
+    }
     // Load products if the session token is set
-    store.adminLoadProducts();
+    if (document.getElementById('table-products')) {
+        store.adminLoadProducts();
+    }
     // Loading functions
     store.displayUserName();
-    store.requestCatalogData();
+    store.loadCatalog();
     // "Shopping" functions
     store.addingButtonFunctions();
     store.updateTotal();
