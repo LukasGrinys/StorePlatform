@@ -50,6 +50,7 @@ const productsModal = document.getElementsByClassName('products-modal')[0];
 const productForm = document.getElementsByClassName('product-form')[0];
 const closeProductModalButton = document.getElementsByClassName('close-product-modal')[0];
 const productButton = document.getElementById('btn-product');
+const confirmModal = document.getElementsByClassName('confirm-modal-container')[0];
 
 // Navigation
 showNav = function() {    
@@ -224,7 +225,7 @@ applyFilter = () => {
     pageConfig.filtersApplied = [];
     const filterCount = (filterListElement.childElementCount - 1) / 3;
     for (let i = 0; i < filterCount; i++) {
-        let filterToCheck = filtersList.getElementsByTagName('input')[i];
+        let filterToCheck = filterListElement.getElementsByTagName('input')[i];
         let filterClass = filterToCheck.className;
         let filterName = filterClass.slice(4,filterClass.length);
         let filterNameFixed = filterName.replace("-"," ");
@@ -574,7 +575,7 @@ displaySuccessMessage = (orderId) => {
     <h1>Order was sent</h1>
     <span>Your order was sent. Thank you for stopping by!</span><br>
     <span>Your order ID is : ${orderId} </span>
-    <div class="btn-blue" onclick="closeCheckoutWindow()">Go back shopping</div>
+    <div class="btn-blue" onclick="closeCheckoutWindow()">Go back</div>
   </div>`;
 }
 
@@ -776,6 +777,8 @@ redirectUserIfLoggedIn = () => {
 
 renderOrders = () => {
     if (ordersTable) {
+        ordersTable.innerHTML = `<tr><th>Order ID</th>f<th>Stripe Token ID</th><th>Customer Info</th><th>Order details</th>
+        <th>Total price</th><th>Status</th><th>Actions</th></tr>`
         fetch('/api/orders', {
             method: 'GET',
             headers: { "Content-type" : "application/json"}
@@ -815,7 +818,7 @@ renderOrders = () => {
                     <td><div class="orders-action-column">${buttonHTML} <div class="orders-delete">X</div></div></td>`;
                     ordersTable.append(tableRow);
                     document.getElementsByClassName('orders-action')[i].addEventListener('click',updateOrderStatus);
-                    document.getElementsByClassName('orders-delete')[i].addEventListener('click',store.adminDeleteOrder);
+                    document.getElementsByClassName('orders-delete')[i].addEventListener('click',() => { openDeleteOrderModal(obj.orderId) });
                 };
         }) 
     }
@@ -880,35 +883,36 @@ updateOrderStatus = (event) => {
     }
 }
 
-store.adminDeleteOrder = function(event) {
-    var targetRow = event.target.parentElement.parentElement.parentElement;
-    var orderId = targetRow.firstChild.innerText;
-    var username = store.config.sessionToken.username;
-    if (confirm(`Are you sure about deleting the order (ID: ${orderId} )?\nPress OK to confirm`)) {
-        var xhr = new XMLHttpRequest();
-        xhr.open('DELETE','api/orders/delete?orderId='+orderId);
-        xhr.setRequestHeader("Content-type","application/json");
-        if (store.config.sessionToken) {
-            var parsedToken = store.config.sessionToken.id
-            xhr.setRequestHeader("token", parsedToken);
-        };
-        xhr.setRequestHeader("username", username);
-        xhr.onreadystatechange = function() {
-            if (xhr.readyState == XMLHttpRequest.DONE) {
-                var statusCode = xhr.status;
-                var responseReturned = xhr.responseText;
-                if (statusCode == 200) {
-                    targetRow.innerHTML = "";
-                    store.renewToken();
-                };
-                errorBox.style.display = "inline-block";
-                errorBox.innerText = responseReturned;
-            }
-        };
-        xhr.send();
-    } else {
-        // 
-    }
+openDeleteOrderModal = (orderId) => {
+    confirmModal.innerHTML = `
+    <div class="modal-black"></div>
+    <div class="confirm-box">
+        <div class="form-line">Are you sure you want to delete this order?</div>
+        <div class="buttons-line">
+            <div class="btn-blue" id="delete-order">Yes</div>
+            <div class="btn-blue" id="dont-delete">No</div>
+        </div>
+    </div>`;
+    confirmModal.style.display = "flex";
+    document.getElementById("delete-order").addEventListener('click', () => deleteOrder(orderId));
+    document.getElementById("dont-delete").addEventListener('click', closeConfirmModal);
+}
+
+deleteOrder = (orderId) => {
+    fetch(`/api/orders?id=${orderId}`, {
+        method : "DELETE",
+        headers: { 'Content-type' : 'application/json'}
+    }).then( (response) => { 
+        if (response.status === 403) {
+            window.location = "/login";
+        }
+        return response.json();
+    })
+    .then( (data) => {
+        renderTableErrorMessage(data.message);
+        renderOrders();
+        closeConfirmModal();
+    });
 }
 
 renderProductsForAdmin = () => {
@@ -943,7 +947,7 @@ renderProductsForAdmin = () => {
             tableRow.innerHTML = itemHTML;
             productsTable.append(tableRow);
             document.getElementsByClassName('btn-edit-product')[i].addEventListener('click', () => { openProductsModal("edit", itemId) });
-            document.getElementsByClassName('remove-product')[i].addEventListener('click',store.adminRemoveProduct); 
+            document.getElementsByClassName('remove-product')[i].addEventListener('click', () => openDeleteProductModal(itemId)); 
         }
         compileCategories(sortedCatalog);
     })
@@ -955,6 +959,7 @@ const productCategory = document.getElementById('productEditCategory');
 const productDescription = document.getElementById('productDescription');
 const productPrice = document.getElementById('productPrice');
 const errBox = document.getElementsByClassName('product-form-error')[0];
+const formHeader = document.getElementsByClassName('form-header')[0];
 
 openProductsModal = (method, itemId) => {
     productsModal.style.display = "flex";
@@ -967,9 +972,11 @@ openProductsModal = (method, itemId) => {
     if (method === "add") {
         productButton.addEventListener('click', addNewProduct);
         document.getElementById('productId').innerText = " NEW";
+        formHeader.innerHTML = "Add new product";
     } else if (method === "edit") {
         productButton.addEventListener('click', editProduct);
         document.getElementById('productId').innerText = " " + itemId;
+        formHeader.innerHTML = "Edit product";
         let queryId = itemId.replace("#","");
         fetch(`/api/products?itemId=${queryId}`, {
             method : "GET",
@@ -992,10 +999,11 @@ closeProductsModal = () => {
     productsModal.style.display = "none";
     productTitle.value = "";
     productImageURL.value = "";
-    productCategory.value = "";
+    productCategory.innerHTML = "";
     productDescription.value = "";
     productPrice.value = "";
     errBox.innerHTML = "";
+    formHeader.innerHTML = "";
 };
 
 addNewProduct = () => {
@@ -1036,6 +1044,7 @@ addNewProduct = () => {
         errBox.innerHTML = "Please fill in the inputs marked"
     }
 }
+
 editProduct = () => {
     let itemId = document.getElementById('productId').innerText;
     let title = productTitle.value;
@@ -1077,235 +1086,41 @@ editProduct = () => {
     }
 }
 
-store.adminPrepareToAddNewProduct = function() {
-    // Hide the editing form
-    document.getElementById('product-edit-form').style.display = "none";
-    // Form the new ID
-    var table = document.getElementById('table-products');
-    var orderIdStr = table.lastChild.firstChild.innerText;
-    var oldOrderIdStr = orderIdStr.replace("#","");
-    var newOrderId = Number(oldOrderIdStr) + 1;
-    if (newOrderId < 10) {
-        var newOrderIdStr = "#00" + newOrderId;
-    } else if (newOrderId < 100 && newOrderId > 9) {
-        var newOrderIdStr = "#0" + newOrderId;
-    } else {
-        var newOrderIdStr = "#" + newOrderId;
-    }
-    document.getElementById('productAddId').innerHTML = newOrderIdStr;
-    // Load categories
-    compileCategories(catalog);
-    let categoryTitles = pageConfig.categoryTitles;
-    let len = categoryTitles.length;
-    var selectElement = document.getElementById('productEditCategory');
-    selectElement.innerHTML = "<option></option>";
-    for (let i = 0; i < len; i++) {
-        var option = document.createElement('option');
-        let category = pageConfig.categoryTitles[i];
-        option.innerHTML = category;
-        selectElement.append(option);
-    }
-    // Hide the "Add new" button
-    document.getElementsByClassName('add-new-product')[0].style.display = "none";
-    // Display the form
-    // document.getElementById('product-add-form').style.display = "block";
-};
-
-
-// Adding new product
-store.adminAddNewProduct = function(event) {
-    event.preventDefault();
-    // Collect all the inputs
-    var formElement = event.target.parentElement;
-    var productId = document.getElementById("productAddId").innerText;
-    var productName = formElement.getElementsByTagName('INPUT')[0].value;
-    var altName = formElement.getElementsByTagName('INPUT')[1].value;
-    var category = formElement.getElementsByTagName('SELECT')[0].value;
-    var newCategory = formElement.getElementsByTagName('INPUT')[2].value;
-    var description = formElement.getElementsByTagName('TEXTAREA')[0].value;
-    var price = formElement.getElementsByTagName('INPUT')[3].value;
-    // Validate inputs
-    productName = typeof(productName) == 'string' && productName.trim().length > 0 ? productName.trim() : false;
-    altName = typeof(altName) == 'string' && altName.trim().length > 0 ? altName.trim() : false;
-    category = typeof(category) == 'string' && category.trim().length > 0 ? category.trim() : false;
-    newCategory = typeof(newCategory) == 'string' && newCategory.trim().length > 0 ? newCategory.trim() : false;
-    description = typeof(description) == 'string' && description.trim().length > 0 ? description.trim() : false;
-    price = typeof(price) == 'string' && price.trim().length > 0 ? price.trim() : false;
-    finalCategory = false;
-    // Decide if the category will be one form existing ones or totally new
-    if (category) {
-        finalCategory = category;
-    };
-    if (!category && newCategory) {
-        finalCategory = newCategory;
-    }
-    // Form the request to be sent
-    if (productId, productName && altName && finalCategory && description && price) {
-        var payload = {
-            'id' : productId,
-            'productName' : productName,
-            'altName' : altName,
-            'category' : finalCategory,
-            'description' : description,
-            'price' : store.fixThePrice(price),
-            'imageSrc' : 'Items/item'+productId.replace("#","")+".jpg",
-        };
-        var xhr = new XMLHttpRequest();
-        xhr.open("POST","api/products/add");
-        xhr.setRequestHeader('Content-type','application/json');
-        if (store.config.sessionToken) {
-            xhr.setRequestHeader('username', store.config.sessionToken.username);
-            xhr.setRequestHeader('tokenId', store.config.sessionToken.id);
-        };
-        xhr.onreadystatechange = function() {
-            if (xhr.readyState == XMLHttpRequest.DONE) {
-                var statusCode = xhr.status;
-                var responseReturned = xhr.responseText;
-                if (statusCode == 200) {
-                    // document.getElementById('product-add-form').style.display = "none";
-                    document.getElementsByClassName('products-table-error')[0].style.display = "inline-block";
-                    document.getElementsByClassName('products-table-error')[0].innerText = responseReturned;
-                } else {
-                    document.getElementsByClassName('products-table-error')[0].style.display = "inline-block";
-                    document.getElementsByClassName('products-table-error')[0].innerText = responseReturned;
-                };
-            }
-        };
-        var payloadString = JSON.stringify(payload);
-        xhr.send(payloadString);
-    } else {
-        document.getElementsByClassName('products-table-error')[0].style.display = "inline-block";
-        document.getElementsByClassName('products-table-error')[0].innerText = "Please fill in the required fields";
-    }
-}
-if (document.getElementById('btn-addProduct')) {
-    document.getElementById('btn-addProduct').addEventListener('click',store.adminAddNewProduct);
+openDeleteProductModal = (itemId) => {
+    confirmModal.innerHTML = `
+    <div class="modal-black"></div>
+    <div class="confirm-box">
+        <div class="form-line">Are you sure you want to delete this item?</div>
+        <div class="buttons-line">
+            <div class="btn-blue" id="delete-product">Yes</div>
+            <div class="btn-blue" id="dont-delete">No</div>
+        </div>
+    </div>`;
+    confirmModal.style.display = "flex";
+    document.getElementById("delete-product").addEventListener('click', () => deleteProduct(itemId));
+    document.getElementById("dont-delete").addEventListener('click', closeConfirmModal);
 }
 
-store.adminEditProduct = function(event) {
-    // Hide the add new product form and show the button
-    // document.getElementById('product-add-form').style.display = "none";
-    document.getElementsByClassName('add-new-product')[0].style.display = "block";
-    var tableRow = event.target.parentElement.parentElement.parentElement;
-    // Collect data from row
-    var productId = tableRow.childNodes[0].innerText;
-    var productTitle = tableRow.childNodes[4].innerText;
-    var productCategory = tableRow.childNodes[6].innerText;
-    var altTitle = tableRow.childNodes[8].innerText;
-    var description = tableRow.childNodes[10].innerText;
-    var price = tableRow.childNodes[12].innerText;
-    // Insert into form
-    var form = document.getElementById('product-edit-form');
-    form.style.display = "block";
-    document.getElementById('productEditId').innerHTML = productId;
-    form.getElementsByTagName('input')[0].value = productTitle;
-    form.getElementsByTagName('input')[1].value = altTitle;
-    form.getElementsByTagName('input')[2].value = "";
-    // Load categories
-    compileCategories(catalog);
-    let categoryTitles = pageConfig.categoryTitles;
-    let len = categoryTitles.length;
-    var selectElement = document.getElementById('editCategories');
-    selectElement.innerHTML = "<option></option>";
-    for (let i = 0; i < len; i++) {
-        var option = document.createElement('option');
-        let category = pageConfig.categoryTitles[i];
-        if (category == productCategory) {
-            option.setAttribute("selected", "");
+deleteProduct = (itemId) => {
+    let idNum = itemId.replace("#","");
+    fetch(`/api/products?id=${idNum}`, {
+        method: "DELETE",
+        headers: { 'Content-type' : 'application/json'}
+    }).then( (response) => {        
+        if (response.status === 403) {
+            window.location = "/login"
         }
-        option.innerHTML = category;
-        selectElement.append(option);
-    };
-    form.getElementsByTagName('textarea')[0].value = description;
-    form.getElementsByTagName('input')[3].value = price;
-    scrollTo(0,30);
-};
-
-store.adminSaveProductChanges = function(event) {
-    event.preventDefault();
-    var errorBox = document.getElementsByClassName('products-table-error')[0]
-    // Collect form data 
-    var form = document.getElementById('product-edit-form');
-    var productId = document.getElementById('productEditId').innerHTML;
-    var productTitle = form.getElementsByTagName('input')[0].value;
-    var altTitle = form.getElementsByTagName('input')[1].value;
-    var productDescription = form.getElementsByTagName('textarea')[0].value;
-    var productPrice = form.getElementsByTagName('input')[3].value;
-    // Check if there is a new category:
-    if (form.getElementsByTagName('input')[2].value !== "") {
-        var productCategory = form.getElementsByTagName('input')[2].value;
-    } else {
-        var productCategory = document.getElementById("editCategories").value;
-    }
-    // Form the request
-    if (productId && productTitle && altTitle && productDescription && productPrice && productCategory) {
-        var xhr = new XMLHttpRequest();
-        xhr.open('PUT','api/products/edit');
-        xhr.setRequestHeader('Content-Type','application/json');
-        if (store.config.sessionToken) {
-            xhr.setRequestHeader('username', store.config.sessionToken.username);
-            xhr.setRequestHeader('tokenid', store.config.sessionToken.id);
-        };
-        xhr.onreadystatechange = function() {
-            if (xhr.readyState == XMLHttpRequest.DONE) {
-                var statusCode = xhr.status;
-                var responseReturned = xhr.responseText;
-                errorBox.style.display = "inline-block";
-                errorBox.innerText = responseReturned;
-                if (statusCode == 200) {
-                    form.style.display = "none";
-                }
-            }
-        };
-        var payload = {
-            'productId' : productId,
-            'productName' : productTitle, 
-            'altName' : altTitle,
-            'productDescription' : productDescription, 
-            'productPrice' : productPrice,
-            'productCategory' : productCategory,
-        };
-        var payloadString = JSON.stringify(payload);
-        xhr.send(payloadString);
-    } else {
-        errorBox.style.display = "inline-block";
-        errorBox.innerText = "Please fill in the required fields";
-    }
+        return response.json();
+    }).then( (data) => {
+        closeConfirmModal();
+        renderTableErrorMessage(data.message)
+        renderProductsForAdmin();
+    })
 }
 
-if (document.getElementById('btn-editProduct')) {
-    document.getElementById('btn-editProduct').addEventListener('click', store.adminSaveProductChanges);
-}
-
-store.adminRemoveProduct = function(event) {
-    var errorBox = document.getElementsByClassName('products-table-error')[0]
-    var tableRow = event.target.parentElement.parentElement;
-    var productId = tableRow.childNodes[0].innerText;
-    if (confirm(`Are you sure about deleting the product (ID: ${productId})?\nPress OK to confirm`)) {
-        var xhr = new XMLHttpRequest();
-        xhr.open('DELETE','api/products/delete');
-        xhr.setRequestHeader('Content-Type','application/json');
-        if (store.config.sessionToken) {
-            xhr.setRequestHeader('username', store.config.sessionToken.username);
-            xhr.setRequestHeader('tokenid', store.config.sessionToken.id);
-        };
-        xhr.onreadystatechange = function() {
-            if (xhr.readyState == XMLHttpRequest.DONE) {
-                var statusCode = xhr.status;
-                var responseReturned = xhr.responseText;
-                errorBox.style.display = "inline-block";
-                errorBox.innerText = responseReturned;
-                if (statusCode == 200) {
-                    tableRow.innerHTML = "";
-                }
-            }
-        };
-        var payload = {
-            'productId' : productId
-        };
-        var payloadString = JSON.stringify(payload);
-        xhr.send(payloadString);
-    }
+closeConfirmModal = () => {
+    confirmModal.innerHTML = '';
+    confirmModal.style.display = 'none';
 }
 
 // Append functions
