@@ -1,39 +1,45 @@
-<!DOCTYPE html>
-<html>
-  <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FICTIONAL | Employee login</title>
-    <link href="https://fonts.googleapis.com/css?family=Nunito&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css?family=Quicksand&display=swap" rel="stylesheet">
-    <link type="image/x-icon" rel="icon" href="public/favicon.ico">
-    <link rel="stylesheet" type="text/css" href="public/styles.css">
-    <script type="text/javascript" charset="utf-8" src="public/store.js" defer></script>
-</head>
-<body>
-  <div class="navigation-bar navigation-admin">
-    <a class="username" href="/dashboard"></a>
-    <a href="/">Back to store</a>
-    <a href="/orders">Orders</a>
-    <a href="/products">Products</a>
-    <a href="/dashboard" id="admin-logout">Log Out</a>
+<div class="navigation-bar navigation-admin">
+  <div class="closeNav">X</div>
+  <div class="toggleNav">
+    <span class="bar"></span>
+    <span class="bar"></span>
+    <span class="bar"></span>
   </div>
+  <div class="user-section">
+    <a class="username" href="/dashboard"></a>
+    <div class="nav-log-out"></div>
+  </div>
+  <a href="/">Back to store</a>
+  <a href="/orders">Orders</a>
+  <a href="/users">Users</a>
+  <a href="/products">Products</a>
+</div>
+
   <div class='container'>
-    <h1>Admin dashboard</h1>
+    <h1>Employee dashboard</h1>
     <div class='admin-dashboard-wrapper'>
         <a href="/orders" class='admin-dashboard-item'>
-            <img src="public/icons/dash-orders.png"><br>
-            <span><b>Orders</b><br>
-            <span>Check, confirm, delete orders</span>
-        </a>
+            <img src="public/icons/dash-orders.png">
+            <div class="item-right">
+              <span><b>Orders</b></span>
+              <span>View, manage orders</span>
+            </div>
+          </a>
+
         <a href="/products" class='admin-dashboard-item'>
-          <img src="public/icons/dash-products.png"><br>
-          <span><b>Products</b><br>
-          <span>Create, edit and delete products</span>
+          <img src="public/icons/dash-products.png">
+          <div class="item-right">
+            <span><b>Products</b></span>
+            <span>Create, edit and delete products</span>
+          </div>
+        </a>
+
+        <a href="/users" class="admin-dashboard-item">
+          <img src="public/icons/dash-employees.png">
+          <div class="item-right">
+            <span><b>Users</b></span>
+            <span>Add new users and delete them</span>
+          </div>
         </a>
     </div>
   </div>
-  <div class='footer'>
-    <span>FromMedToDev inc. 2019</span>
-  </div>
-</body>
-</html>

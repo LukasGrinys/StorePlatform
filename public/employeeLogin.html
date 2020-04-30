@@ -1,46 +1,29 @@
-<!DOCTYPE html>
-<html>
-  <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FICTIONAL | Employee login</title>
-    <link href="https://fonts.googleapis.com/css?family=Nunito&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css?family=Quicksand&display=swap" rel="stylesheet">
-    <link type="image/x-icon" rel="icon" href="public/favicon.ico">
-    <link rel="stylesheet" type="text/css" href="public/styles.css">
-    <script type="text/javascript" charset="utf-8" src="public/store.js" defer></script>
-  </head>
-  <body>
-    <div class='header'>
-      <span>FICTIONAL</span>
-    </div>
-    <div class="navigation-bar">
-      <a class="username" href="/dashboard"></a>
-      <div class="closeNav">X</div>
-      <div class="toggleNav">
-        <span class="bar"></span>
-        <span class="bar"></span>
-        <span class="bar"></span>
-      </div>
-      <a href="/">Store</a>
-      <a href="/checkOrder">Check order</a>
-      <a href="#" id="management">Management</a>
-    </div>
+<div class="navigation-bar">
+  <div class="closeNav">X</div>
+  <div class="toggleNav">
+    <span class="bar"></span>
+    <span class="bar"></span>
+    <span class="bar"></span>
+  </div>
+  <div class="user-section">
+    <a class="username" href="/dashboard"></a>
+    <div class="nav-log-out"></div>
+  </div>
+  <a href="/">Store</a>
+  <a href="/login">Administration</a>
+</div>
+
     <div class='container'>
-      <h1>Admin zone</h1>
+      <h1>Sign in</h1>
       <div class='login-wrapper'>
-            <form class="employee-login" id="employeeLogin" action="api/tokens" method="POST">
+            <form class="employee-login" id="employeeLogin">
                 <div class="formError"></div>
                 <span>Enter your username:</span><br>
                 <input type="text" name="employeeUsername" id="employeeUsername" value="admin"><br>
                 <span>Enter your password:</span><br>
                 <input type="password" name="employeePassword" id="employeePassword" value="admin"><br>
-                <button type="submit" id="login-btn" class="employee-login-btn btn-blue">Login</button>
             </form>
+            <div id="login-btn" class="btn-blue">Login</div>
             <div class="errText"></div>
         </div>
     </div>
-    <div class='footer'>
-      <span>FromMedToDev inc. 2019</span>
-    </div>
-  </body>
-</html>

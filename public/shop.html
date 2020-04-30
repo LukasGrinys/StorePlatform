@@ -1,40 +1,25 @@
-<!DOCTYPE html>
-<html>
-  <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FICTIONAL | A store you can only imagine</title>
-    <link href="https://fonts.googleapis.com/css?family=Nunito&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css?family=Quicksand&display=swap" rel="stylesheet">
-    <link type="image/x-icon" rel="icon" href="public/favicon.ico">
-    <link rel="stylesheet" type="text/css" href="public/styles.css">
-    <script type="text/javascript" charset="utf-8" src="public/store.js" defer></script>
-  </head>
-  <body>
-  <!-- Loading screen-->
   <div class='loading-screen'>
     <div class="loading-section">
-      <div class="section-title">
-      <span>Loading</span>
-      </div>
+      <div class="section-title">Loading</div>
       <div class="line line-slow"></div>
       <div class="line line-fast"></div>
     </div>
   </div>
-  <!-- Loading screen-->
-    <div class='header'>
-      <span>FICTIONAL</span>
-    </div>
+
     <div class="navigation-bar">
-      <a class="username" href="/dashboard"></a>
       <div class="closeNav">X</div>
       <div class="toggleNav">
         <span class="bar"></span>
         <span class="bar"></span>
         <span class="bar"></span>
       </div>
+      <div class="user-section">
+        <a class="username" href="/dashboard"></a>
+        <div class="nav-log-out"></div>
+      </div>
       <a href="/">Store</a>
-      <a href="/checkOrder">Check order</a>
-      <a href="#" id="management">Management</a>
+      <a href="/checkorder">Check order</a>
+      <a href="#" id="management">Administration</a>
     </div>
     <div class="floating-cart"><a href="#cart" class="floating-cart-text">Cart</a></div>
     <div class='container'>
@@ -85,6 +70,7 @@
         <div class='cart-table'>
         <div class='cart-row'>
           <span class="cart-id cart-header cart-column">ID</span>
+          <span class="cart-image cart-header cart-column">IMAGE</span>
           <span class="cart-item cart-header cart-column">ITEM</span>
           <span class="cart-price cart-header cart-column">PRICE</span>
           <span class="cart-quantity cart-header cart-column">QUANTITY</span>
@@ -101,38 +87,28 @@
       </div>
 
       <div class="checkout" id="checkout">
-        <h1>Checkout</h1>
+        <div class="checkout-header">Checkout</div>
         <div class="close-checkout">X</div>
         <div class="checkout-container">
-          <form class="order-details" id="sendOrder" action="/api/orders/send" method="POST">
+          <form class="order-details" id="sendOrder">
             <div class="formError"></div>
             <span><b>Enter your full name:*</b></span>
-            <input type="text" name="fullName" id="inputFullName" placeholder="John Doe" required><br>
+            <input type="text" name="fullName" id="inputFullName" value="John Doe" required><br>
             <span><b>Enter your e-mail*</b></span>
-            <input type="e-mail" name="email" id="inputEmail" placeholder="username@someemail.com" required><br>
+            <input type="e-mail" name="email" id="inputEmail" value="username@someemail.com" required><br>
             <span><b>Enter the shipping address:</b></span><br>
             <span>Address line 1:*</span>
-            <input type="textbox" name="address-line-one" id="inputAddOne" placeholder="Main st. 1" required><br>
+            <input type="textbox" name="address-line-one" id="inputAddOne" value="Main st. 1" required><br>
             <span>Address line 2:</span>
-            <input type="textbox" name="address-line-two" id="inputAddTwo" placeholder="City, State, Country" required><br>
+            <input type="textbox" name="address-line-two" id="inputAddTwo" value="City, State, Country"><br>
             <div class="agreement-field">
-              <input type='checkbox' name="agreement" id="agreement">
-              <label for="agreement">I agree with <a href="#" target="_blank">terms and agreements</a></label>
+              <input type='checkbox' checked name="agreement" id="agreement">
+              <label for="agreement">I agree with terms and agreements</label>
             </div>
             <span style="font-size:0.8em">* - required fields</span><br>
             <button type="submit" class="order-send-btn btn-blue">Confirm order</button>
           </form>
-          <div class="order-bill">
-            <h2>Bill:</h2>
-            <span class="bill-total"></span>
-          </div>
         </div>
       
       </div>
-
     </div>
-    <div class='footer'>
-      <span>FromMedToDev inc. 2019</span>
-    </div>
-  </body>
-</html>
