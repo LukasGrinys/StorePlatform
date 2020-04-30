@@ -1,90 +1,85 @@
-<!DOCTYPE html>
-<html>
-  <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FICTIONAL | Products</title>
-    <link href="https://fonts.googleapis.com/css?family=Nunito&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css?family=Quicksand&display=swap" rel="stylesheet">
-    <link type="image/x-icon" rel="icon" href="public/favicon.ico">
-    <link rel="stylesheet" type="text/css" href="public/styles.css">
-    <script type="text/javascript" charset="utf-8" src="public/store.js" defer></script>
-</head>
-<body>
-  <div class="navigation-bar navigation-admin">
-    <a class="username" href="/dashboard"></a>
-    <a href="/">Back to store</a>
-    <a href="/orders">Orders</a>
-    <a href="/products">Products</a>
-    <a href="/dashboard" id="admin-logout">Log Out</a>
+<div class="navigation-bar navigation-admin">
+  <div class="closeNav">X</div>
+  <div class="toggleNav">
+    <span class="bar"></span>
+    <span class="bar"></span>
+    <span class="bar"></span>
   </div>
+  <div class="user-section">
+    <a class="username" href="/dashboard"></a>
+    <div class="nav-log-out"></div>
+  </div>
+  <a href="/">Back to store</a>
+  <a href="/orders">Orders</a>
+  <a href="/users">Users</a>
+  <a href="/products">Products</a>
+</div>
+
+<div class='add-new-product'>Add new</div>
+
+<div class="products-modal">
+  <div class="modal-black"></div>
+  <div class="close-product-modal">X</div>
+  <form id='product-add-form' class='product-form'>
+      <div class="form-header">Add Product</div>
+      <div class="form-line">
+        Product ID:<span id="productId"></span><br>
+      </div>
+      <div class="form-line">
+        Product title: <input type="text" id="productTitle" value="Wooden Duck">
+      </div>
+      <div class="form-line">
+        Image URL: <input type="text" id="imageURL" value="http://www.url.com/image012.jpg">
+      </div>
+      <div class="form-line">
+        Select a category:<select id="productEditCategory" class="product-edit-category"></select>
+      </div>
+      <div class="form-line">
+        Description:<br>
+        <textarea rows="5" cols="30" maxlength="121" id="productDescription" value="Bla bla"></textarea>
+      </div>
+      <div class="form-line">
+        Price (in $): <input type="number" id="productPrice" value="14.50" step="0.01">
+      </div>
+      <div id="btn-product" class="btn-blue">Save</div>
+      <div class="form-line">
+        <div class="product-form-error"></div>
+      </div>
+  </form>
+
+  <!-- <form action="#" id='product-edit-form' class='product-form'>
+      <span><b>Edit product:</b></span><br>
+      <span>Product ID:</span><br>
+      <span id="productEditId"></span><br>
+      <span>Product title:</span><br>
+      <input type="text" name="productTitle" placeholder="Wooden Duck"><br>
+      <span>Alternative title (for image):</span><br>
+      <input type="text" name="altProductTitle" placeholder="Wooden Duck"><br>
+      <span>Category:</span><br>
+      <span>Select a category:</span>
+      <select id="editCategories" class="product-edit-category"></select><br>
+      <span>Enter a new category. <br>This will replace the existing one (new category icon must be uploaded)</span><br>
+      <input type="text" name="newProductCategory" placeholder="New category"><br>
+      <span>Description:</span><br>
+      <textarea rows="5" cols="30" maxlength="121" name="productDescription"></textarea><br>
+      <span>Price:</span><br>
+      <input type="number" name="productPrice" step="0.01"><br>
+      <button type="submit" id="btn-editProduct" class="btn-blue">Apply changes</button>
+  </form> -->
+</div>
+
   <div class='container'>
     <h1>Products</h1>
-    <div class='add-new-product'>Add new</div>
-    <div class='products-table-error'></div>
-    <div class="products-edit-wrapper">
-
-        <form action="#" id='product-add-form' class='product-form'>
-            <span><b>Add product:</b></span><br>
-            <span>Product ID:</span><br>
-            <span id="productAddId"></span><br>
-            <span>Product title:</span><br>
-            <input type="text" name="productTitle" placeholder="Wooden Duck"><br>
-            <span>Alternative title (for image):</span><br>
-            <input type="text" name="altProductTitle" placeholder="Wooden Duck"><br>
-            <span>Category:</span><br>
-            <span>Select a category:</span>
-            <select id="productEditCategory" class="product-edit-category">
-            </select><br>
-            <span>Add a new category: (new category icon must be uploaded)</span><br>
-            <input type="text" name="newProductCategory" placeholder="Toys"><br>
-            <span>Description:</span><br>
-            <textarea rows="5" cols="30" maxlength="121" name="productDescription" placeholder="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis ligula urna, dignissim sed tristique in, vulputate at ante."></textarea><br>
-            <span>Price:</span><br>
-            <input type="number" name="productPrice" placeholder="14.50" step="0.01"><br>
-            <button type="submit" id="btn-addProduct" class="btn-blue">Apply changes</button>
-        </form>
-
-        <form action="#" id='product-edit-form' class='product-form'>
-            <span><b>Edit product:</b></span><br>
-            <span>Product ID:</span><br>
-            <span id="productEditId"></span><br>
-            <span>Product title:</span><br>
-            <input type="text" name="productTitle" placeholder="Wooden Duck"><br>
-            <span>Alternative title (for image):</span><br>
-            <input type="text" name="altProductTitle" placeholder="Wooden Duck"><br>
-            <span>Category:</span><br>
-            <span>Select a category:</span>
-            <select id="editCategories" class="product-edit-category"></select><br>
-            <span>Enter a new category. <br>This will replace the existing one (new category icon must be uploaded)</span><br>
-            <input type="text" name="newProductCategory" placeholder="New category"><br>
-            <span>Description:</span><br>
-            <textarea rows="5" cols="30" maxlength="121" name="productDescription"></textarea><br>
-            <span>Price:</span><br>
-            <input type="number" name="productPrice" step="0.01"><br>
-            <button type="submit" id="btn-editProduct" class="btn-blue">Apply changes</button>
-        </form>
-
-    </div>
-
-    </div>
-
-    <table id='table-products'>
+    <div class="err-container"></div>
+    <table id='products-table'>  
     <tr>
         <th>ID</th>
         <th>Picture</th>
         <th>Title</th>
         <th>Category</th>
-        <th>Alternative title</th>
-        <th>Description</th>
         <th>Price</th>
         <th>Actions</th>
         <th>Last changes</th>
-        <th>Changed by</th>
     </tr>
     </table>
   </div>
-  <div class='footer'>
-    <span>FromMedToDev inc. 2019</span>
-  </div>
-</body>
-</html>

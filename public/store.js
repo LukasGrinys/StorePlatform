@@ -44,6 +44,12 @@ const checkOrderButton = document.getElementsByClassName('btn-checkOrder')[0];
 const ordersTable = document.getElementById('table-orders');
 const ordersTableErr = document.getElementsByClassName('orders-table-error')[0];
 const errContainer = document.getElementsByClassName('err-container')[0];
+const productsTable = document.getElementById('products-table');
+const addNewProductButton = document.getElementsByClassName('add-new-product')[0];
+const productsModal = document.getElementsByClassName('products-modal')[0];
+const productForm = document.getElementsByClassName('product-form')[0];
+const closeProductModalButton = document.getElementsByClassName('close-product-modal')[0];
+const productButton = document.getElementById('btn-product');
 
 // Navigation
 showNav = function() {    
@@ -85,7 +91,7 @@ requestCatalogData = () => {
     };
     openLoadingScreen();
     const xhr = new XMLHttpRequest();
-    xhr.open("GET","api/products/all", true);
+    xhr.open("GET","api/products", true);
     xhr.setRequestHeader("Content-Type", "application/json");
     xhr.onreadystatechange = function() {
         if (xhr.readyState === XMLHttpRequest.DONE) {
@@ -188,7 +194,7 @@ appendCatalogItems = () => {
                 <img src="${imageSourceUrl}" alt="${item.altTitle}">
                 <span class="item-description">${item.description}</span>
                 <div class="item-details">
-                <span class="item-price">$${item.price}</span>
+                <span class="item-price">$${fixThePrice(item.price / 100)}</span>
                 <div class="item-quantity-container">
                     <button type="button" onclick="this.parentNode.querySelector('input[type=number]').stepDown()" class="number-change numberDec">-</button>
                     <input type="number" min="1" max="99" value="1">
@@ -815,10 +821,10 @@ renderOrders = () => {
     }
 };
 
-store.fixThePrice = function(num) {
+fixThePrice = (num) => {
     let str = String(num);
     let index = str.indexOf(".")
-    if (index == -1) {
+    if (index === -1) {
         return str + ".00";
     };
     let decimal = str.slice(index + 1, str.length);
@@ -833,6 +839,7 @@ store.fixThePrice = function(num) {
 
 renderTableErrorMessage = (msg) => {
     errContainer.innerHTML = msg;
+    errContainer.style.opacity = 1;
     setTimeout( () => {
         errContainer.style.opacity = 0;
     }, 1500);
@@ -904,70 +911,169 @@ store.adminDeleteOrder = function(event) {
     }
 }
 
-store.adminLoadProducts = function() {
-    if (document.getElementById('table-products')) {
-        var sessionToken = store.config.sessionToken;
-        var xhr = new XMLHttpRequest();
-        xhr.open("GET","api/products/adminLoad", true);
-        xhr.setRequestHeader('Content-type','application/json');
-        if (sessionToken) {
-            xhr.setRequestHeader('username',sessionToken.username);
-            xhr.setRequestHeader('tokenid',sessionToken.id);
-        };
-        xhr.onreadystatechange = function() {
-            if (xhr.readyState == XMLHttpRequest.DONE) {
-                var statusCode = xhr.status;
-                var responseReturned = xhr.responseText;
-                if (statusCode == 200) {
-                    var adminCatalog = JSON.parse(responseReturned);
-                    var sortedCatalog = adminCatalog.sort(function(a,b) { return a.id.replace("#","") - b.id.replace("#","") });
-                    catalog = sortedCatalog;
-                    store.adminViewProducts(sortedCatalog);
-                    store.renewToken();
-                } else if (statusCode === 403) {
-                    store.config.sessionToken = false;
-                    window.location = "/login";
-                } else {
-                    console.log(responseReturned);
-                }
-            };
-        };
-        xhr.send();
-    }
+renderProductsForAdmin = () => {
+    fetch('api/products', {
+        method : "GET",
+        headers: { 'Content-type' : 'application/json'}
+    }).then( (response) => {
+        return response.json()
+    }).then( (data) => {
+        const catalog = data;
+        const sortedCatalog = catalog.sort( (a,b) => { return Number(a.id.replace("#","")) - Number(b.id.replace("#",""))});    
+        const len = sortedCatalog.length;
+        productsTable.innerHTML = "<tr><th>ID</th><th>Picture</th><th>Title</th><th>Category</th><th>Price</th><th>Actions</th><th>Last changes</th></tr>";
+        for (let i = 0; i < len; i++) {
+            let tableRow = document.createElement('tr');
+            let item = sortedCatalog[i];
+            let itemId = item.id;
+            let imageUrl = "public/"+item.imageSrc;
+            let title = item.name;
+            let category = item.category;
+            let price = item.price;
+            let lastChanges = item.timeOfChanges;
+            let author = item.lastChangesBy;
+            let d = new Date(lastChanges);
+            let itemHTML = `<td class="table-small">${itemId}</td>
+            <td><img class="cart-item-image" src="${imageUrl}"></td>
+            <td class="table-small">${title}</td>
+            <td class="table-small">${category}</td>
+            <td class="table-small">${fixThePrice(price / 100)}</td>
+            <td><div class="products-actions-column"><button type="button" class="btn-blue btn-edit-product">Edit</button><div class="remove-product">X</div></div></td>
+            <td class="table-small">${d.toLocaleString()} <br>by ${author}</td>`
+            tableRow.innerHTML = itemHTML;
+            productsTable.append(tableRow);
+            document.getElementsByClassName('btn-edit-product')[i].addEventListener('click', () => { openProductsModal("edit", itemId) });
+            document.getElementsByClassName('remove-product')[i].addEventListener('click',store.adminRemoveProduct); 
+        }
+        compileCategories(sortedCatalog);
+    })
 };
 
-store.adminViewProducts = function(adminCatalog) {
-    const tableElement = document.getElementById('table-products');
-    const len = adminCatalog.length;
-    for (let i = 0; i < len; i++) {
-        let tableRow = document.createElement('tr');
-        let item = adminCatalog[i];
-        // Values
-        let itemId = item.id;
-        let imageUrl = "public/"+item.imageSrc;
-        let title = item.name;
-        let category = item.category;
-        let altTitle = item.altTitle;
-        let description = item.description;
-        let price = item.price;
-        let lastChanges = item.timeOfChanges;
-        let author = item.lastChangesBy;
-        let d = new Date(lastChanges);
-        let itemHTML = `<td>${itemId}</td>
-        <td><img class="cart-item-image" src="${imageUrl}"></td>
-        <td>${title}</td>
-        <td>${category}</td>
-        <td>${altTitle}</td>
-        <td>${description}</td>
-        <td>${price}</td>
-        <td><div class="products-actions-column"><button type="button" class="btn-blue btn-edit-product">Edit product</button><br><div class="remove-product">X</div></div></td>
-        <td>${d.toLocaleString()}</td>
-        <td>${author}</td>`
-        // append item
-        tableRow.innerHTML = itemHTML;
-        tableElement.append(tableRow);
-        document.getElementsByClassName('btn-edit-product')[i].addEventListener('click',store.adminEditProduct);
-        document.getElementsByClassName('remove-product')[i].addEventListener('click',store.adminRemoveProduct); 
+const productTitle = document.getElementById('productTitle');
+const productImageURL = document.getElementById('imageURL');
+const productCategory = document.getElementById('productEditCategory');
+const productDescription = document.getElementById('productDescription');
+const productPrice = document.getElementById('productPrice');
+const errBox = document.getElementsByClassName('product-form-error')[0];
+
+openProductsModal = (method, itemId) => {
+    productsModal.style.display = "flex";
+    const categoryTitles = pageConfig.categoryTitles;
+    const listElement = document.getElementById('productEditCategory');
+    for (category of categoryTitles) {
+        let html = `<option>${category}</option>`
+        listElement.innerHTML += html;
+    };
+    if (method === "add") {
+        productButton.addEventListener('click', addNewProduct);
+        document.getElementById('productId').innerText = " NEW";
+    } else if (method === "edit") {
+        productButton.addEventListener('click', editProduct);
+        document.getElementById('productId').innerText = " " + itemId;
+        let queryId = itemId.replace("#","");
+        fetch(`/api/products?itemId=${queryId}`, {
+            method : "GET",
+            headers: { 'Content-type' : 'application/json' }
+        }).then( (response) => {
+            return response.json()
+        }).then( (data) => {
+            productTitle.value = data.name;
+            productImageURL.value = data.imageSrc;
+            productCategory.value = data.category;
+            productDescription.value = data.description;
+            productPrice.value = fixThePrice(data.price / 100);
+            errBox.innerHTML = "";
+        })
+    }
+}
+closeProductsModal = () => {
+    productButton.removeEventListener('click', addNewProduct);
+    productButton.removeEventListener('click', editProduct);
+    productsModal.style.display = "none";
+    productTitle.value = "";
+    productImageURL.value = "";
+    productCategory.value = "";
+    productDescription.value = "";
+    productPrice.value = "";
+    errBox.innerHTML = "";
+};
+
+addNewProduct = () => {
+    let title = productTitle.value;
+    title = title.trim().length > 0 ? title.trim() : false;
+    let imageURL = productImageURL.value;
+    imageURL = imageURL.trim().length > 0 ? imageURL.trim() : false;
+    let category = productCategory.value;
+    let description = productDescription.value;
+    description = description.trim().length > 0 ? description.trim() : false;
+    let price = Number(productPrice.value) * 100;
+    if (title && imageURL && description && price) {
+        fetch('/api/products', {
+            method: 'POST',
+            headers: {'Content-type' : 'application/json'},
+            body: JSON.stringify({
+                title: title,
+                imageURL : imageURL,
+                category: category,
+                description: description,
+                price: price })
+            }).then( (response) => {
+                if (response.status === 403) {
+                    window.location = "/login"
+                }   
+                return response.json()
+            }).then( (data) => {
+                closeProductsModal();
+                renderTableErrorMessage(data.message);
+                renderProductsForAdmin();
+
+        })
+    } else {
+        if (!title) { productTitle.style.border = "1px solid #C84741" } else { productTitle.style.border = "1px solid grey"};
+        if (!imageURL) { productImageURL.style.border = "1px solid #C84741" } else {productImageURL.style.boder = "1px solid grey"};
+        if (!description) { productDescription.style.border = "1px solid #C84741"} else { productDescription.style.border = "1px solid grey"};
+        if (!price) { productPrice.style.border = "1px solid #C84741"} else { productPrice.style.border = "1px solid grey" };
+        errBox.innerHTML = "Please fill in the inputs marked"
+    }
+}
+editProduct = () => {
+    let itemId = document.getElementById('productId').innerText;
+    let title = productTitle.value;
+    title = title.trim().length > 0 ? title.trim() : false;
+    let imageURL = productImageURL.value;
+    imageURL = imageURL.trim().length > 0 ? imageURL.trim() : false;
+    let category = productCategory.value;
+    let description = productDescription.value;
+    description = description.trim().length > 0 ? description.trim() : false;
+    let price = parseFloat(Number(productPrice.value) * 100);
+    if (title && imageURL && description && price) {
+        fetch('/api/products', {
+            method: 'PUT',
+            headers: { 'Content-type' : 'application/json'},
+            body: JSON.stringify({
+                title: title,
+                imageURL : imageURL,
+                category: category,
+                description: description,
+                price: price,
+                itemId : itemId
+            })
+        }).then( (response) => {
+            if (response.status === 403) {
+                window.location = "/login";
+            }
+            return response.json();
+        }).then( (data) => {
+            closeProductsModal();
+            renderTableErrorMessage(data.message);
+            renderProductsForAdmin();
+        })
+    } else {
+        if (!title) { productTitle.style.border = "1px solid #C84741" } else { productTitle.style.border = "1px solid grey"};
+        if (!imageURL) { productImageURL.style.border = "1px solid #C84741" } else {productImageURL.style.boder = "1px solid grey"};
+        if (!description) { productDescription.style.border = "1px solid #C84741"} else { productDescription.style.border = "1px solid grey"};
+        if (!price) { productPrice.style.border = "1px solid #C84741"} else { productPrice.style.border = "1px solid grey" };
+        errBox.innerHTML = "Please fill in the inputs marked"
     }
 }
 
@@ -1002,11 +1108,9 @@ store.adminPrepareToAddNewProduct = function() {
     // Hide the "Add new" button
     document.getElementsByClassName('add-new-product')[0].style.display = "none";
     // Display the form
-    document.getElementById('product-add-form').style.display = "block";
+    // document.getElementById('product-add-form').style.display = "block";
 };
-if (document.getElementsByClassName('add-new-product')[0]) {
-    document.getElementsByClassName('add-new-product')[0].addEventListener('click',store.adminPrepareToAddNewProduct);
-}
+
 
 // Adding new product
 store.adminAddNewProduct = function(event) {
@@ -1058,7 +1162,7 @@ store.adminAddNewProduct = function(event) {
                 var statusCode = xhr.status;
                 var responseReturned = xhr.responseText;
                 if (statusCode == 200) {
-                    document.getElementById('product-add-form').style.display = "none";
+                    // document.getElementById('product-add-form').style.display = "none";
                     document.getElementsByClassName('products-table-error')[0].style.display = "inline-block";
                     document.getElementsByClassName('products-table-error')[0].innerText = responseReturned;
                 } else {
@@ -1080,7 +1184,7 @@ if (document.getElementById('btn-addProduct')) {
 
 store.adminEditProduct = function(event) {
     // Hide the add new product form and show the button
-    document.getElementById('product-add-form').style.display = "none";
+    // document.getElementById('product-add-form').style.display = "none";
     document.getElementsByClassName('add-new-product')[0].style.display = "block";
     var tableRow = event.target.parentElement.parentElement.parentElement;
     // Collect data from row
@@ -1215,15 +1319,14 @@ if (sendOrderButton) { sendOrderButton.addEventListener('click', sendOrder)};
 if (logOutButton) { logOutButton.addEventListener('click', logAdminOut)};
 if (openManagement) { openManagement.addEventListener('click', redirectUserIfLoggedIn) };
 if (checkOrderButton) { checkOrderButton.addEventListener('click',checkOrder); }
+if (addNewProductButton) { addNewProductButton.addEventListener('click', () => { openProductsModal("add")});}
+if (closeProductModalButton) { closeProductModalButton.addEventListener('click', closeProductsModal)};
 
 
 initializeStore = () => {
     getSessionToken();
     if (ordersTable) { renderOrders();}
-    // Load products if the session token is set
-    if (document.getElementById('table-products')) {
-        store.adminLoadProducts();
-    }
+    if (productsTable) { renderProductsForAdmin();}
     // Loading functions
     displayUserName();
     requestCatalogData();
