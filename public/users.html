@@ -1,0 +1,59 @@
+<div class="navigation-bar navigation-admin">
+    <div class="closeNav">X</div>
+    <div class="toggleNav">
+      <span class="bar"></span>
+      <span class="bar"></span>
+      <span class="bar"></span>
+    </div>
+    <div class="user-section">
+      <a class="username" href="/dashboard"></a>
+      <div class="nav-log-out"></div>
+    </div>
+    <a href="/">Back to store</a>
+    <a href="/orders">Orders</a>
+    <a href="/users">Users</a>
+    <a href="/products">Products</a>
+  </div>
+  
+<div class='add-new-user'>Create</div>
+<div class="err-container"></div>
+
+<div class="confirm-modal-container"></div>
+
+<div class="users-modal">
+  <div class="modal-black"></div>
+  <div class="close-users-modal">X</div>
+  <form id='user-add-form' class='product-form'>
+      <div class="form-header">Add new user</div>
+      <div class="form-line">User ID:<span id="userId"></span></div>
+      <div class="form-line">Username: <input type="text" id="username" value="demoUsername" maxlength="12"></div>
+      <div class="form-line">First name: <input type="text" id="firstName" value="John"></div>
+      <div class="form-line">Last name: <input type="text" id="lastName" value="Doe"></div>
+      <div id="createPassword">
+        <div class="form-line">Enter your password: <input type="password" id="password" value="password"></div>
+        <div class="form-line">Repeat your password: <input type="password" id="repeatedPassword" value="password"></div> 
+      </div>
+      <div id="editPassword">
+        <div class="form-line">Enter old password: <input type="password" id="oldPassword"></div>
+        <div class="form-line">Enter new password: <input type="password" id="newPassword"></div> 
+      </div>
+      
+      <div id="btn-user" class="btn-blue">Save</div>
+      <div class="form-line">
+      <div class="user-form-error"></div>
+      </div>
+  </form>
+</div>
+
+    <div class='container'>
+      <h1>Users</h1>
+      <table id='users-table'>
+      <tr>
+          <th>User ID</th>
+          <th>Full Name</th>
+          <th>Username</th>
+          <th>Date added</th>
+          <th>Actions</th>
+      </tr>
+      </table>
+    </div>

@@ -3,7 +3,7 @@
   "preferGlobal": true,
   "version": "1.0.0",
   "author": "Lukas Grinys <lukas.grinys@gmail.com>",
-  "description": "An online store platform API",
+  "description": "Online Store platform",
   "license": "MIT",
   "engines": {
     "node": ">=0.10"

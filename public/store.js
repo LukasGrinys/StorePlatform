@@ -1,4 +1,3 @@
-
 let catalog = [];
 let pageConfig = {
     categoryTitles : [],
@@ -10,11 +9,8 @@ let pageConfig = {
     mediaWidth: '540px'
 };
 let orderInfo = [];
-
 let store = {};
-store.config = {
-    'sessionToken' : false
-};
+store.config = { sessionToken : false };
 
 // Document Elements
 const checkoutElement = document.getElementsByClassName('checkout')[0];
@@ -42,18 +38,22 @@ const checkOrderButton = document.getElementsByClassName('btn-checkOrder')[0];
 
 // Management elements
 const ordersTable = document.getElementById('table-orders');
-const ordersTableErr = document.getElementsByClassName('orders-table-error')[0];
 const errContainer = document.getElementsByClassName('err-container')[0];
 const productsTable = document.getElementById('products-table');
+const usersTable = document.getElementById('users-table');
 const addNewProductButton = document.getElementsByClassName('add-new-product')[0];
 const productsModal = document.getElementsByClassName('products-modal')[0];
 const productForm = document.getElementsByClassName('product-form')[0];
 const closeProductModalButton = document.getElementsByClassName('close-product-modal')[0];
 const productButton = document.getElementById('btn-product');
 const confirmModal = document.getElementsByClassName('confirm-modal-container')[0];
+const usersModal = document.getElementsByClassName('users-modal')[0];
+const userButton = document.getElementById('btn-user');
+const createNewUserButton = document.getElementsByClassName('add-new-user')[0];
+const closeUsersModalButton = document.getElementsByClassName('close-users-modal')[0];
 
 // Navigation
-showNav = function() {    
+showNav = () => {    
     let len = navbar.getElementsByTagName('A').length;
     for (let i = 1; i < len; i++) {
         navbar.getElementsByTagName('A')[i].style.display = 'block';
@@ -61,7 +61,7 @@ showNav = function() {
     document.getElementsByClassName('toggleNav')[0].style.display = 'none';
     document.getElementsByClassName('closeNav')[0].style.display = 'block';
 }
-closeNav = function() {
+closeNav = () => {
     let len = navbar.getElementsByTagName('A').length;
     for (let i = 1; i < len; i++) {
         navbar.getElementsByTagName('A')[i].style.display = 'none';
@@ -69,7 +69,6 @@ closeNav = function() {
     document.getElementsByClassName('toggleNav')[0].style.display = 'flex';
     document.getElementsByClassName('closeNav')[0].style.display = 'none';
 }
-
 displayUserName = () => {
     if (store.config.sessionToken && document.getElementsByClassName('username')[0]) {
         const str = store.config.sessionToken;
@@ -83,33 +82,25 @@ displayUserName = () => {
     }
 };
 
-
-
 // Catalog
 requestCatalogData = () => {
-    if (!catalogElement) {
-        return;
-    };
+    if (!catalogElement) { return };
     openLoadingScreen();
-    const xhr = new XMLHttpRequest();
-    xhr.open("GET","api/products", true);
-    xhr.setRequestHeader("Content-Type", "application/json");
-    xhr.onreadystatechange = function() {
-        if (xhr.readyState === XMLHttpRequest.DONE) {
-                    let statusCode = xhr.status;
-                    let responseReturned = xhr.responseText;
-                    let obj = JSON.parse(responseReturned);
-                    if (statusCode !== 200) {
-                        console.log('Error : Could not receive catalog info')
-                    } else {
-                        catalog = obj;
-                        compileCategories(catalog);
-                        appendCatalogItems();
-                        closeLoadingScreen();
-                    }
+    fetch('/api/products', {
+        method: "GET",
+        headers: { 'Content-type' : 'application/json'}
+    }).then( (response) => {
+        if (response.status !== 200) {
+            console.log("Error: could not receive catalog info");
+            closeLoadingScreen();
         };
-    };
-    xhr.send();
+        return response.json();
+    }).then( (data) => {
+        catalog = data;
+        compileCategories(catalog);
+        appendCatalogItems();
+        closeLoadingScreen();
+    });
 }
 
 compileCategories = (data) => {
@@ -183,8 +174,7 @@ appendCatalogItems = () => {
             let categoryString = category.toLowerCase().replace(" ","");
             const iconSourceUrl = "public/icons/categories/" + categoryString + ".png";
             let itemIdStr = item.id;
-            let itemIdNumber = itemIdStr.replace("#","");
-            const imageSourceUrl = "public/Items/item" + itemIdNumber + ".jpg";
+            let imageSourceUrl =  item.imageSrc.indexOf("https://") > -1 ? item.imageSrc : "/public/" + item.imageSrc;
             let itemContainer = document.createElement("DIV");
             itemContainer.innerHTML = `<div class='item-id' id="item-id">${item.id}</div>
                 <span class="item-header">${item.name}</span>
@@ -660,8 +650,7 @@ checkOrder = (event) => {
 }
 
 getSessionToken = () => {
-    let tokenString = localStorage.getItem('token');
-    let token = JSON.parse(tokenString);
+    let token = JSON.parse(localStorage.getItem('token')); 
     if (token) {
         if (token.expires < Date.now()) {
             store.config.sessionToken = false;
@@ -670,50 +659,40 @@ getSessionToken = () => {
             store.config.sessionToken = token;
             renewToken();
         }
-    };
+    } else {
+        store.config.sessionToken = false;
+        localStorage.setItem('token', false);
+    }
 };
-
 setSessionToken = (token) => {
-    store.config.sessionToken = JSON.parse(token);
-    localStorage.setItem('token',token);
-    let obj = { auth : token};
+    store.config.sessionToken = token;
+    let tokenStr = JSON.stringify(token);
+    localStorage.setItem('token',tokenStr);
+    let obj = { auth : token} ;
     document.cookie = JSON.stringify(obj);
 };
 
 renewToken = () => {
-    let currentToken = typeof(store.config.sessionToken) === 'object' ? store.config.sessionToken : false;
-    if (currentToken) {
-        const payload = {
-            'id' : currentToken.id,
-            'extend' : true
-        };
-        const xhr = new XMLHttpRequest();
-        xhr.open('PUT','api/tokens');
-        xhr.setRequestHeader("Content-type", "application/json");
-        xhr.onreadystatechange = function() {
-            if (xhr.readyState === XMLHttpRequest.DONE) {
-                var statusCode = xhr.status;
-                if (statusCode === 200) {
-                    var yhr = new XMLHttpRequest();
-                    yhr.open('GET','api/tokens?id='+currentToken.id);
-                    yhr.onreadystatechange = function() {
-                        if (yhr.readyState === XMLHttpRequest.DONE) {
-                            let statusCode = yhr.status;
-                            let responsestring = yhr.responseText;
-                            if (statusCode === 200) {
-                                setSessionToken(responsestring);
-                            } else {
-                                setSessionToken(false);
-                                // callback(true);
-                            }
-                        }
-                    }
-                    yhr.send();
-                }
-            };
-        }
-        var payloadString = JSON.stringify(payload);
-        xhr.send(payloadString);
+    let currentToken = store.config.sessionToken;
+    let error = false;
+    if (currentToken !== false) {
+        fetch('/api/tokens', {
+            method: "PUT",
+            headers: { 'Content-type' : 'application/json'},
+            body: JSON.stringify({
+                id: currentToken.id,
+                extend: true
+            })
+        }).then( (response) => {
+            if (response.status !== 200) {
+                error = true;
+            }
+            return response.json();
+        }).then( (data) => {
+            if (error === false) {
+                setSessionToken(data);
+            }
+        })
     };   
 };
 
@@ -724,25 +703,25 @@ adminLogin = () => {
         username,
         password
     };
-    const xhr = new XMLHttpRequest();
-    xhr.open('POST', 'api/tokens', true);
-    xhr.setRequestHeader("Content-type", "application/json");
-    xhr.onreadystatechange = function() {
-        if(xhr.readyState == XMLHttpRequest.DONE) {
-            const statusCode = xhr.status;
-            const responseReturned = xhr.responseText;
-            if (statusCode !== 200) {
-                const responseJSON = JSON.parse(responseReturned);
-                const errorText = responseJSON.Error;
-                document.getElementsByClassName('errText')[0].innerText = errorText;
-            } else {
-                setSessionToken(responseReturned);
-                window.location = '/dashboard';
-            }
-        };
-    };
-    const payloadString = JSON.stringify(payload);
-    xhr.send(payloadString); 
+    let error = false;
+    fetch('api/tokens', {
+        method: "POST",
+        headers: { 'Content-type' : 'application/json'},
+        body: JSON.stringify(payload)
+    }).then( (response) => {
+        if (response.status !== 200) {
+            error = true;
+        }
+        return response.json()
+    }).then( (data) => {
+        if (error === true) {
+            document.getElementsByClassName('errText')[0].innerText = data.message;
+        } else {
+            setSessionToken(data);
+            console.log("logging in");
+            window.location = '/dashboard';
+        }
+    })
 };
 if (loginButton) { loginButton.addEventListener('click', adminLogin)};
 
@@ -777,8 +756,8 @@ redirectUserIfLoggedIn = () => {
 
 renderOrders = () => {
     if (ordersTable) {
-        ordersTable.innerHTML = `<tr><th>Order ID</th>f<th>Stripe Token ID</th><th>Customer Info</th><th>Order details</th>
-        <th>Total price</th><th>Status</th><th>Actions</th></tr>`
+        ordersTable.innerHTML = `<tr><th>Order ID</th><th>Stripe Token ID</th><th>Customer Info</th><th>Order details</th>
+        <th>Total price</th><th>Status</th><th>Actions</th></tr>`;
         fetch('/api/orders', {
             method: 'GET',
             headers: { "Content-type" : "application/json"}
@@ -815,7 +794,7 @@ renderOrders = () => {
                     <td>${itemString}</td>
                     <td>$${obj.totalPrice}</td>
                     <td>${obj.orderStatus}</td>
-                    <td><div class="orders-action-column">${buttonHTML} <div class="orders-delete">X</div></div></td>`;
+                    <td><div class="actions-column">${buttonHTML} <div class="remove-button orders-delete">X</div></div></td>`;
                     ordersTable.append(tableRow);
                     document.getElementsByClassName('orders-action')[i].addEventListener('click',updateOrderStatus);
                     document.getElementsByClassName('orders-delete')[i].addEventListener('click',() => { openDeleteOrderModal(obj.orderId) });
@@ -930,7 +909,7 @@ renderProductsForAdmin = () => {
             let tableRow = document.createElement('tr');
             let item = sortedCatalog[i];
             let itemId = item.id;
-            let imageUrl = "public/"+item.imageSrc;
+            let imageUrl = item.imageSrc.indexOf("https://") > -1 ? item.imageSrc : "public/"+item.imageSrc;
             let title = item.name;
             let category = item.category;
             let price = item.price;
@@ -942,7 +921,10 @@ renderProductsForAdmin = () => {
             <td class="table-small">${title}</td>
             <td class="table-small">${category}</td>
             <td class="table-small">${fixThePrice(price / 100)}</td>
-            <td><div class="products-actions-column"><button type="button" class="btn-blue btn-edit-product">Edit</button><div class="remove-product">X</div></div></td>
+            <td><div class="actions-column">
+            <button type="button" class="btn-blue btn-edit-product">Edit</button>
+            <div class="remove-button remove-product">X</div>
+            </div></td>
             <td class="table-small">${d.toLocaleString()} <br>by ${author}</td>`
             tableRow.innerHTML = itemHTML;
             productsTable.append(tableRow);
@@ -1123,6 +1105,260 @@ closeConfirmModal = () => {
     confirmModal.style.display = 'none';
 }
 
+renderUsers = () => {
+    usersTable.innerHTML = '<tr><th>User ID</th><th>Full Name</th><th>Username</th><th>Date added</th><th>Actions</th></tr>';
+    fetch('/api/users', {
+        method: "GET",
+        headers: {'Content-type' : 'application/json'}
+    }).then( (response) => {
+        return response.json();
+    }).then( (data) => {
+        if (data.users) {
+            let sortedList = data.users.sort( (a,b) => { return a.username - b.username});
+            for (let i = 0; i < sortedList.length; i++) {
+                let tableRow = document.createElement('tr');
+                let user = sortedList[i];
+                let date = new Date(user.dateCreated);
+                let html = `<td>${user.userId}</td>
+                <td>${user.firstName + " " + user.lastName}</td>
+                <td>${user.username}</td>
+                <td>${date.toLocaleDateString() + " " + date.getHours() + ":" + date.getMinutes()}</td>
+                <td><div class="actions-column">
+                <button type="button" class="btn-blue btn-edit-user">Edit</button>
+                <div class="remove-button remove-product">X</div>
+                </div></td>`;
+                tableRow.innerHTML = html;
+                usersTable.append(tableRow);
+                document.getElementsByClassName('btn-edit-user')[i].addEventListener('click', () => { openUsersModal("edit", user.userId) });
+                document.getElementsByClassName('remove-product')[i].addEventListener('click', () => openDeleteUserModal(user.userId));  
+            }
+        } else {
+            renderTableErrorMessage(data.message);
+        }
+    })
+}
+
+const userIdField = document.getElementById('userId');
+const usernameField = document.getElementById('username');
+const firstNameField = document.getElementById('firstName');
+const lastNameField = document.getElementById('lastName');
+const passwordField = document.getElementById('password');
+const repeatPasswordField = document.getElementById('repeatedPassword');
+const userFormErrBox = document.getElementsByClassName('user-form-error')[0];
+const createUserPasswords = document.getElementById('createPassword');
+const editUserPasswords = document.getElementById('editPassword');
+const oldPasswordField = document.getElementById('oldPassword');
+const newPasswordField = document.getElementById('newPassword');
+
+openUsersModal = (method, userId) => {
+    usersModal.style.display = "flex";
+    if (method === "add") {
+        userButton.addEventListener('click', createNewUser);
+        document.getElementById('userId').innerText = " NEW";
+        formHeader.innerHTML = "Create new user";
+        createUserPasswords.style.display = "block";
+        editUserPasswords.style.display = "none";
+    } else if (method === "edit") {
+        let forbidden = false;
+        userButton.addEventListener('click', editUser);
+        formHeader.innerHTML = "Edit user";
+        createUserPasswords.style.display = "none";
+        editUserPasswords.style.display = "block";
+        fetch(`/api/users?id=${userId}`, {
+            method : "GET",
+            headers: {'Content-type' : 'application/json'}
+        }).then( (response) => {
+            if (response.status === 403) {
+                forbidden = true;
+            }
+            return response.json();
+        }).then( (data) => {
+            if (forbidden === true) {
+                renderTableErrorMessage(data.message);
+                closeUsersModal();
+            } else {
+                userButton.addEventListener('click', editUser);
+                userIdField.innerHTML = data.userId;
+                usernameField.value = data.username;
+                usernameField.disabled = true;
+                firstNameField.value = data.firstName;
+                lastNameField.value = data.lastName;
+                newPassword.value = "";
+                oldPassword.value = "";
+                userFormErrBox.innerHTML = "";
+            }
+        })
+    }
+}
+
+closeUsersModal = () => {
+    userButton.removeEventListener('click', createNewUser);
+    userButton.removeEventListener('click', editUser);
+    usersModal.style.display = "none";
+    userIdField.innerHTML = "";
+    usernameField.value = "";
+    firstNameField.value = "";
+    lastNameField.value = "";
+    passwordField.value = "";
+    oldPasswordField.value = "";
+    newPasswordField.value = "";
+    repeatPasswordField.value = "";
+    userFormErrBox.innerHTML = "";
+}
+
+createNewUser = () => {
+    userFormErrBox.innerHTML = "";
+    let username = usernameField.value;
+    let firstName = firstNameField.value;
+    let lastName = lastNameField.value;
+    let password = passwordField.value;
+    let repeatedPassword = repeatPasswordField.value;
+    let badRequest = false;
+    username = username.trim().length > 0 && username.trim().indexOf(" ") === -1 ? username.trim() : false;
+    password = password.trim().length > 6 ? password.trim() : false; 
+    let passwordMatch = repeatedPassword.trim() === password ? true : false;
+    if (username && password && passwordMatch) {
+        const body = {
+            username: username,
+            password: password,
+            firstName: firstName.trim(),
+            lastName: lastName.trim()
+        };
+        fetch('/api/users', {
+            method: "POST",
+            headers: {'Content-type' : 'application/json'},
+            body: JSON.stringify(body)
+        }).then( (response) => {
+            if (response.status === 400) { badRequest = true;}
+            return response.json();
+        }).then( (data) => {
+            if (badRequest) {
+                userFormErrBox.innerHTML = data.message;
+            } else {
+                renderTableErrorMessage(data.message);
+                renderUsers();
+                closeUsersModal();
+            }
+        })
+    } else {
+        if (!username) { userFormErrBox.innerHTML += "You must fill in the username field. It cannot contain white spaces<br>";};
+        if (!password) { userFormErrBox.innerHTML += "Password must be at least 7 characters long<br>";};
+        if (!passwordMatch) { userFormErrBox.innerHTML += "Passwords dont match"};
+    }
+}
+
+editUser = () => {
+    userFormErrBox.innerHTML = "";
+    const userId = userIdField.innerHTML.trim();
+    let firstName = firstNameField.value;
+    let lastName = lastNameField.value;
+    let oldPassword = oldPasswordField.value;
+    let newPassword = newPasswordField.value;
+    let badRequest = false;
+    newPassword = newPassword.trim().length > 6 || newPassword.trim().length === 0 ? newPassword.trim() : false; 
+    if (newPassword !== false) {
+        const body = {
+            userId: userId,
+            oldPassword: oldPassword,
+            newPassword: newPassword,
+            firstName: firstName.trim(),
+            lastName: lastName.trim()
+        };
+        fetch('/api/users', {
+            method: "PUT",
+            headers: {'Content-type' : 'application/json'},
+            body: JSON.stringify(body)
+        }).then( (response) => {
+            if (response.status === 400) { badRequest = true;}
+            return response.json();
+        }).then( (data) => {
+            if (badRequest) {
+                userFormErrBox.innerHTML = data.message;
+            } else {
+                renderTableErrorMessage(data.message);
+                renderUsers();
+                closeUsersModal();
+            }
+        })
+    } else {
+        userFormErrBox.innerHTML += "Password must be at least 7 characters long<br>";
+    }
+}
+
+openDeleteUserModal = (userId) => {
+    let forbidden = false;
+    fetch(`/api/users?id=${userId}`, {
+        method : "GET",
+        headers: {'Content-type' : 'application/json'}
+    }).then( (response) => {
+        if (response.status === 403) {
+            forbidden = true;
+        }
+        return response.json();
+    }).then( (data) => {
+        if (forbidden === true) {
+            renderTableErrorMessage(data.message);
+        } else {
+            if (store.config.sessionToken.username === "admin") {
+                confirmModal.innerHTML = `<div class="modal-black"></div>
+                <div class="confirm-box">
+                    <div class="form-line">Are you sure you want to delete this account? (ID :${userId})</div>
+                    <div class="buttons-line">
+                        <div class="btn-blue" id="delete-user">Yes</div>
+                        <div class="btn-blue" id="dont-delete">No</div>
+                    </div>
+                </div>`;
+                confirmModal.style.display = "flex";
+                document.getElementById("delete-user").addEventListener('click', () => deleteUser(userId, true));
+                document.getElementById("dont-delete").addEventListener('click', closeConfirmModal);
+            } else {
+                confirmModal.innerHTML = `<div class="modal-black"></div>
+                <div class="confirm-box">
+                    <div class="form-line">Are you sure you want to delete your account?</div>
+                    <div class="buttons-line">
+                        <div class="btn-blue" id="delete-user">Yes</div>
+                        <div class="btn-blue" id="dont-delete">No</div>
+                    </div>
+                </div>`;
+                confirmModal.style.display = "flex";
+                document.getElementById("delete-user").addEventListener('click', () => deleteUser(userId, false));
+                document.getElementById("dont-delete").addEventListener('click', closeConfirmModal);
+            }
+            
+        }
+    })
+}
+
+deleteUser = (userId, isAdmin) => {
+    let forbidden = false;
+    let error = false;
+    fetch(`/api/users?id=${userId}`, {
+        method: 'DELETE',
+        headers: { 'Content-type' : 'application/json'}
+    }).then( (response) => {
+        if (response.status === 403) {
+            forbidden = true;
+        };
+        if (response.status === 500) {
+            error = true;
+        }
+        return response.json();
+    }).then( (data) => {
+        if (forbidden) {
+            renderTableErrorMessage(data.message);
+            closeConfirmModal();
+        } else {
+            if (isAdmin === true || (isAdmin === false && error === true)) {
+                renderTableErrorMessage(data.message);
+                closeConfirmModal();
+                renderUsers();
+            } else if (error === false) {
+                setSessionToken(false);
+                window.location = "/login";
+            }
+        }
+    })
+}
 // Append functions
 if (toggleNavButton) { toggleNavButton.addEventListener('click', showNav)};
 if (closeButton) { closeButton.addEventListener('click', closeNav)};
@@ -1136,12 +1372,15 @@ if (openManagement) { openManagement.addEventListener('click', redirectUserIfLog
 if (checkOrderButton) { checkOrderButton.addEventListener('click',checkOrder); }
 if (addNewProductButton) { addNewProductButton.addEventListener('click', () => { openProductsModal("add")});}
 if (closeProductModalButton) { closeProductModalButton.addEventListener('click', closeProductsModal)};
+if (createNewUserButton) { createNewUserButton.addEventListener('click', () => { openUsersModal("add")} )};
+if (closeUsersModalButton) { closeUsersModalButton.addEventListener('click', closeUsersModal)};
 
 
 initializeStore = () => {
     getSessionToken();
     if (ordersTable) { renderOrders();}
     if (productsTable) { renderProductsForAdmin();}
+    if (usersTable) { renderUsers();}
     // Loading functions
     displayUserName();
     requestCatalogData();

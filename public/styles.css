@@ -187,7 +187,7 @@ body {
   width: 75px;
   content: 'Log out';
   color: white;
-  font-size: 1em;
+  font-size: 0.9em;
   transform: rotate(180deg);
   height: 20px;
   opacity: 0;
@@ -216,7 +216,7 @@ a.username::before {
   background-image: url('./icons/user.png');
   background-size: 100% 100%;
 }
-@media (max-width: 540px) {
+@media (max-width: 590px) {
   .navigation-bar {
     width: 100%;
     min-height: 38px;
@@ -225,7 +225,7 @@ a.username::before {
     align-items: center;
     justify-content: center;
     position: sticky;
-    top:0;
+    top: -2px;
     left: 0;
     z-index: 100;
     padding: 0 20px;
@@ -849,7 +849,7 @@ input[type=number]::-webkit-outer-spin-button {
   font-size: 2em;
   cursor: default;
 }
-.close-checkout, .close-product-modal {
+.close-checkout, .close-product-modal, .close-users-modal {
   color: #f2f2f2;
   opacity: 0.3;
   width: 35px;
@@ -860,7 +860,7 @@ input[type=number]::-webkit-outer-spin-button {
   cursor: default;
   transition-duration: 0.5s;
 }
-.close-checkout:hover, .close-product-modal:hover {
+.close-checkout:hover, .close-product-modal:hover, .close-users-modal:hover {
   opacity: 1;
 }
 .order-details {
@@ -988,6 +988,7 @@ input[type=number]::-webkit-outer-spin-button {
 }
 .navigation-admin {
   background-color: #80A492;
+  font-size: 0.8em;
 }
 .admin-dashboard-wrapper {
   width: 100%;
@@ -1070,13 +1071,13 @@ td {
 .orders-action:disabled:hover {
   background-color: white;
 }
-.orders-delete {
-  width: 16px;
-  height: 16px;
+.remove-button {
+  width: 18px;
+  height: 18px;
   color: white;
   border-radius: 50%;
   background-color: #C84741;
-  font-size: 0.7em;
+  font-size: 0.6em;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -1086,23 +1087,24 @@ td {
   transition-duration: 0.3s;
   -webkit-transition-duration: 0.3s;
 }
-.orders-delete:hover {
+.remove-button:hover {
   background-color: rgb(150, 53, 48);
 }
-.orders-action-column {
+.actions-column {
   display: flex;
   flex-direction: column;
   justify-content: space-around;
   align-items: center;
-  font-size: 0.8em;
+  border: none;
 }
 
-.btn-edit-product {
+.btn-edit-product, .btn-edit-user {
   font-size: 0.8em;
   padding: 5px;
 }
+
 /*PRODUCT EDITING*/
-.products-modal {
+.products-modal, .users-modal {
   display: none;
   justify-content: center;
   align-items: center;
@@ -1154,13 +1156,13 @@ td {
   width: 60px;
   text-align: center;
 }
-.product-form-error {
+.product-form-error, .user-form-error {
   font-size: 0.8em;
   text-align: center;
   color: #C84741;
   padding: 5px
 }
-.add-new-product {
+.add-new-product, .add-new-user {
   width: 110px;
   height: 35px;
   color: white;
@@ -1180,10 +1182,10 @@ td {
   transition-duration: 0.3s;
   -webkit-transition-duration: 0.3s;
 }
-.add-new-product:hover {
+.add-new-product:hover, .add-new-user:hover {
   opacity: 1;
 }
-.add-new-product::before {
+.add-new-product::before, .add-new-user::before {
   content: '';
   background-image: url('icons/plus.png');
   background-size: 24px 24px;
@@ -1227,27 +1229,6 @@ textarea {
   display: none;
 }
 
-.products-actions-column {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-around;
-  align-items: center;
-}
-.remove-product {
-  background-color: rgb(199, 100, 70);
-  color: white;
-  font-weight: bold;
-  width: 15px;
-  height: 15px;
-  border-radius: 50%;
-  font-size: 0.8em;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  cursor: pointer;
-  margin-top: 4px;
-}
-
 .confirm-modal-container {
   width: 100%;
   height: 100%;
@@ -1269,4 +1250,7 @@ textarea {
   flex-direction: row;
   justify-content: space-around;
   align-items: center;
+}
+#createPassword, #editPassword {
+  display: hidden;
 }
