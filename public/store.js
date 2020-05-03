@@ -497,7 +497,7 @@ proceedToCheckout = () => {
                                     displaySuccessMessage(data.orderId);
                                     cleanCart();
                                  } else {
-                                    displayErrorMessage(data.errMessage);
+                                    displayErrorMessage(data.message);
                                  }
                              }).catch ( (error) => {
                                 displayErrorMessage(error)
