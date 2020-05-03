@@ -856,9 +856,11 @@ input[type=number]::-webkit-outer-spin-button {
   width: 35px;
   height: 35px;
   font-size: 1.3em;
-  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   font-weight: bold;
-  cursor: default;
+  cursor: pointer;
   transition-duration: 0.5s;
 }
 .close-checkout:hover, .close-product-modal:hover, .close-users-modal:hover {
@@ -873,6 +875,7 @@ input[type=number]::-webkit-outer-spin-button {
 }
 .order-details input {
   width: 250px;
+  font-size: 1em;
   margin-bottom: 10px;
   font-family: "Nunito", sans-serif;
 }
@@ -901,16 +904,6 @@ input[type=number]::-webkit-outer-spin-button {
   margin-top: 20px;
 }
 
-.formError {
-  display:none;
-  font-size: 0.7em;
-  background-color: #C84741;
-  padding: 10px;
-  color: white;
-  width: 280px;
-  margin-bottom: 5px;
-}
-
 /* Order sent text */
 .order-sent-text {
   text-align: center;
@@ -924,21 +917,13 @@ input[type=number]::-webkit-outer-spin-button {
   cursor: pointer;
   outline: none;
 }
-.btn-toStore a {
-  text-decoration: none;
-  color: white;
-  font-family: "Nunito", sans-serif;
-}
 
 /* FOOTER */
 .footer {
   margin-top: 15px;
   padding: 20px;
   text-align: center;
-  border-top: rgba(0,0,0,0.5);
-}
-#demo {
-  display: none;
+  border-top: rgba(0,0,0,0.2) 1px solid;
 }
 
 /* CHECK ORDER PAGE */
@@ -959,9 +944,8 @@ input[type=number]::-webkit-outer-spin-button {
 .responseBox {
   width: 200px;
   margin: 10px 0;
-  border: 1px solid black;
+  color: black;
   padding: 15px;
-  background-color: white;
   display: none;
 }
 
@@ -1157,7 +1141,7 @@ td {
   width: 60px;
   text-align: center;
 }
-.product-form-error, .user-form-error {
+.product-form-error, .user-form-error, .formError {
   font-size: 0.8em;
   text-align: center;
   color: #C84741;

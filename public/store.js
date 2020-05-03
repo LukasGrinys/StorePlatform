@@ -399,7 +399,7 @@ addButtonFunctions = () => {
     const removeCartItemButtons = document.getElementsByClassName('btn-remove-item');
     const len = removeCartItemButtons.length;
     for (let i = 0; i < len; i++) {
-        removeCartItemButtons[i].addEventListener('click',store.removeCartItem);
+        removeCartItemButtons[i].addEventListener('click',removeCartItem);
     }
 }
 
