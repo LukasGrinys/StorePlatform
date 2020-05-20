@@ -11,6 +11,7 @@ let pageConfig = {
 let orderInfo = [];
 let store = {};
 store.config = { sessionToken : false };
+const NAVBAR_CHANGE_WIDTH = 590;
 
 // Document Elements
 const checkoutElement = document.getElementsByClassName('checkout')[0];
@@ -54,17 +55,29 @@ const closeUsersModalButton = document.getElementsByClassName('close-users-modal
 
 // Navigation
 showNav = () => {    
-    let len = navbar.getElementsByTagName('A').length;
-    for (let i = 1; i < len; i++) {
-        navbar.getElementsByTagName('A')[i].style.display = 'block';
+    let len = navbar.getElementsByClassName('navbar-item').length;
+    for (let i = 0; i < len; i++) {
+        navbar.getElementsByClassName('navbar-item')[i].style.display = 'block';
     }
     document.getElementsByClassName('toggleNav')[0].style.display = 'none';
     document.getElementsByClassName('closeNav')[0].style.display = 'block';
-}
+};
+
+window.addEventListener('resize', () => {
+    if (window.innerWidth >= NAVBAR_CHANGE_WIDTH) {
+        const navbarItems = navbar.getElementsByClassName('navbar-item');
+        for (let i = 0; i < navbarItems.length; i++) {
+            navbarItems[i].style.display = 'block';
+        }
+    } else {
+        closeNav();
+    }
+});
+
 closeNav = () => {
-    let len = navbar.getElementsByTagName('A').length;
-    for (let i = 1; i < len; i++) {
-        navbar.getElementsByTagName('A')[i].style.display = 'none';
+    let len = navbar.getElementsByClassName('navbar-item').length;
+    for (let i = 0; i < len; i++) {
+        navbar.getElementsByClassName('navbar-item')[i].style.display = 'none';
     }
     document.getElementsByClassName('toggleNav')[0].style.display = 'flex';
     document.getElementsByClassName('closeNav')[0].style.display = 'none';
@@ -81,6 +94,7 @@ displayUserName = () => {
         document.getElementsByClassName('username')[0].style.display = 'none';
     }
 };
+
 
 // Catalog
 requestCatalogData = () => {
@@ -1359,6 +1373,13 @@ deleteUser = (userId, isAdmin) => {
         }
     })
 }
+// Smooth scroll to cart
+scrollToCart = () => {
+    window.scrollTo({ 
+        top: document.body.scrollHeight, 
+        behavior: 'smooth' 
+    });
+}
 // Append functions
 if (toggleNavButton) { toggleNavButton.addEventListener('click', showNav)};
 if (closeButton) { closeButton.addEventListener('click', closeNav)};
@@ -1374,7 +1395,7 @@ if (addNewProductButton) { addNewProductButton.addEventListener('click', () => {
 if (closeProductModalButton) { closeProductModalButton.addEventListener('click', closeProductsModal)};
 if (createNewUserButton) { createNewUserButton.addEventListener('click', () => { openUsersModal("add")} )};
 if (closeUsersModalButton) { closeUsersModalButton.addEventListener('click', closeUsersModal)};
-
+if (floatingCartElement) { floatingCartElement.addEventListener('click', scrollToCart); }
 
 initializeStore = () => {
     getSessionToken();
