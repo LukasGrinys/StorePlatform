@@ -1011,7 +1011,7 @@ addNewProduct = () => {
     let description = productDescription.value;
     description = description.trim().length > 0 ? description.trim() : false;
     let price = Number(productPrice.value) * 100;
-    if (title && imageURL && description && price) {
+    if (title && description && price) {
         fetch('/api/products', {
             method: 'POST',
             headers: {'Content-type' : 'application/json'},
@@ -1034,7 +1034,6 @@ addNewProduct = () => {
         })
     } else {
         if (!title) { productTitle.style.border = "1px solid #C84741" } else { productTitle.style.border = "1px solid grey"};
-        if (!imageURL) { productImageURL.style.border = "1px solid #C84741" } else {productImageURL.style.boder = "1px solid grey"};
         if (!description) { productDescription.style.border = "1px solid #C84741"} else { productDescription.style.border = "1px solid grey"};
         if (!price) { productPrice.style.border = "1px solid #C84741"} else { productPrice.style.border = "1px solid grey" };
         errBox.innerHTML = "Please fill in the inputs marked"
