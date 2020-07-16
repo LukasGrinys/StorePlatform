@@ -574,7 +574,7 @@ sendOrder = (event) => {
             total += Number((cartItemPrice * cartQuantity).toFixed(2)); 
             orderInfo.push(itemObj);
         };
-        total = total.toFixed(2);
+        total = Number(total.toFixed(2));
         stripeHandler.open({
             amount: total * 100
         })
