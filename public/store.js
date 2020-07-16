@@ -145,11 +145,6 @@ compileCategories = (data) => {
 
 appendCatalogItems = () => {
     if (catalogElement) {
-        if (catalog.length % pageConfig.itemsPerPage === 0) {
-            pageConfig.pagesNeeded = catalog.length / pageConfig.itemsPerPage;
-        } else {
-            pageConfig.pagesNeeded = Math.floor(catalog.length / pageConfig.itemsPerPage) + 1;
-        }
         catalogElement.innerHTML = "";
         let filteredCatalog = [];
         for (let i = 0; i < catalog.length; i++) {
@@ -191,6 +186,13 @@ appendCatalogItems = () => {
                 return b.price - a.price;
             });
         };
+
+        if (filteredCatalog.length % pageConfig.itemsPerPage === 0) {
+            pageConfig.pagesNeeded = filteredCatalog.length / pageConfig.itemsPerPage;
+        } else {
+            pageConfig.pagesNeeded = Math.floor(filteredCatalog.length / pageConfig.itemsPerPage) + 1;
+        }
+
         // Cut the catalog according to the page number and itemsPerPage value
         const itemsPerPage = pageConfig.itemsPerPage;
         const page = pageConfig.pageNumber;
@@ -224,6 +226,7 @@ appendCatalogItems = () => {
             catalogElement.appendChild(itemContainer);
         }
     };
+    pageConfig.pageNumber = 1;
     addButtonFunctions();
     appendPageNumbers();
 }
@@ -303,7 +306,7 @@ appendPageNumbers = () => {
     if (pageNumberContainer) {
         pageNumberContainer.innerHTML = "";
         let pageCount = pageConfig.pagesNeeded;
-        if (pageCount == 1) {
+        if (pageCount === 1) {
             paginationContainer.style.display = "none";
         } else {
             paginationContainer.style.display = "flex";
