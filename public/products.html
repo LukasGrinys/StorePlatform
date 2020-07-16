@@ -9,10 +9,10 @@
     <a class="username" href="/dashboard"></a>
     <div class="nav-log-out"></div>
   </div>
-  <a href="/">Back to store</a>
-  <a href="/orders">Orders</a>
-  <a href="/users">Users</a>
-  <a href="/products">Products</a>
+  <a class="navbar-item" href="/">Back to store</a>
+  <a class="navbar-item" href="/orders">Orders</a>
+  <a class="navbar-item" href="/users">Users</a>
+  <a class="navbar-item" href="/products">Products</a>
 </div>
 
 <div class='add-new-product'>Add new</div>
@@ -29,10 +29,10 @@
         Product ID:<span id="productId"></span><br>
       </div>
       <div class="form-line">
-        Product title: <input type="text" id="productTitle" value="Wooden Duck">
+        Product title: <input type="text" id="productTitle" placeholder="Wooden Duck">
       </div>
       <div class="form-line">
-        Image URL: <input type="text" id="imageURL" value="http://www.url.com/image012.jpg">
+        Image URL: <input type="text" id="imageURL" placeholder="Enter URL of image">
       </div>
       <div class="form-line">
         Select a category:<select id="productEditCategory" class="product-edit-category"></select>
@@ -42,7 +42,7 @@
         <textarea rows="5" cols="30" maxlength="121" id="productDescription" value="Bla bla"></textarea>
       </div>
       <div class="form-line">
-        Price (in $): <input type="number" id="productPrice" value="14.50" step="0.01">
+        Price (in $): <input type="number" id="productPrice" placeholder="1.00" step="0.01">
       </div>
       <div id="btn-product" class="btn-blue">Save</div>
       <div class="form-line">

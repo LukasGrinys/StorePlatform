@@ -5,13 +5,14 @@ let pageConfig = {
     sortingType : 0, // 0 - A-Z (default) 1 - Z-A; 2-Low-High; 3 - High-Low
     itemsPerPage : 5,
     pageNumber : 1,
-    pagesNeeded : 1,
-    mediaWidth: '540px'
+    pagesNeeded : 1
 };
 let orderInfo = [];
+
 let store = {};
 store.config = { sessionToken : false };
-const NAVBAR_CHANGE_WIDTH = 590;
+
+const NAVBAR_CHANGE_WIDTH = 620;
 
 // Document Elements
 const checkoutElement = document.getElementsByClassName('checkout')[0];
@@ -26,6 +27,7 @@ const catalogElement = document.getElementsByClassName('shop-items')[0];
 const sortListElement = document.getElementsByClassName('sort-list')[0];
 const pageQuantityInput = document.getElementsByClassName('page-quantity')[0];
 const pageNumberContainer = document.getElementsByClassName('pages-numbers')[0];
+const paginationContainer = document.querySelector('.pages-container');
 const closeCheckoutButton = document.getElementsByClassName('close-checkout')[0];
 const floatingCartText = document.getElementsByClassName('floating-cart-text')[0];
 const floatingCartElement = document.getElementsByClassName('floating-cart')[0];
@@ -36,6 +38,7 @@ const cartTotal = document.getElementsByClassName('cart-total')[0];
 const loginButton = document.getElementById('login-btn');
 const openManagement = document.getElementById('management');
 const checkOrderButton = document.getElementsByClassName('btn-checkOrder')[0];
+const waitingForPaymentMessage = document.querySelector('.checkout-waiting-message');
 
 // Management elements
 const ordersTable = document.getElementById('table-orders');
@@ -54,46 +57,56 @@ const createNewUserButton = document.getElementsByClassName('add-new-user')[0];
 const closeUsersModalButton = document.getElementsByClassName('close-users-modal')[0];
 
 // Navigation
-showNav = () => {    
-    let len = navbar.getElementsByClassName('navbar-item').length;
-    for (let i = 0; i < len; i++) {
-        navbar.getElementsByClassName('navbar-item')[i].style.display = 'block';
+class Navigation {
+    constructor() {
+        this.events();
     }
-    document.getElementsByClassName('toggleNav')[0].style.display = 'none';
-    document.getElementsByClassName('closeNav')[0].style.display = 'block';
-};
 
-window.addEventListener('resize', () => {
-    if (window.innerWidth >= NAVBAR_CHANGE_WIDTH) {
-        const navbarItems = navbar.getElementsByClassName('navbar-item');
-        for (let i = 0; i < navbarItems.length; i++) {
-            navbarItems[i].style.display = 'block';
+    events() {
+        const closeNavMethod = this.closeNav;
+        window.addEventListener('resize', () => {
+            if (window.innerWidth > NAVBAR_CHANGE_WIDTH) {
+                const navbarItems = navbar.getElementsByClassName('navbar-item');
+                for (let i = 0; i < navbarItems.length; i++) {
+                    navbarItems[i].style.display = 'block';
+                }
+            } else {
+                closeNavMethod();
+            }
+        });
+    }
+
+    showNav() {    
+        let len = navbar.getElementsByClassName('navbar-item').length;
+        for (let i = 0; i < len; i++) {
+            navbar.getElementsByClassName('navbar-item')[i].style.display = 'block';
         }
-    } else {
-        closeNav();
-    }
-});
+        document.getElementsByClassName('toggleNav')[0].style.display = 'none';
+        document.getElementsByClassName('closeNav')[0].style.display = 'block';
+    };
 
-closeNav = () => {
-    let len = navbar.getElementsByClassName('navbar-item').length;
-    for (let i = 0; i < len; i++) {
-        navbar.getElementsByClassName('navbar-item')[i].style.display = 'none';
+    closeNav() {
+        let len = navbar.getElementsByClassName('navbar-item').length;
+        for (let i = 0; i < len; i++) {
+            navbar.getElementsByClassName('navbar-item')[i].style.display = 'none';
+        }
+        document.getElementsByClassName('toggleNav')[0].style.display = 'flex';
+        document.getElementsByClassName('closeNav')[0].style.display = 'none';
     }
-    document.getElementsByClassName('toggleNav')[0].style.display = 'flex';
-    document.getElementsByClassName('closeNav')[0].style.display = 'none';
+
+    displayUserName() {
+        if (store.config.sessionToken && document.getElementsByClassName('username')[0]) {
+            const str = store.config.sessionToken;
+            document.getElementsByClassName('username')[0].innerText = str.username;
+            document.getElementsByClassName('username')[0].style.display = 'block';
+            document.getElementsByClassName('user-section')[0].style.display = '';
+        } else if (!store.config.sessionToken && document.getElementsByClassName('username')[0]) {
+            document.getElementsByClassName('user-section')[0].style.display = 'none';
+            document.getElementsByClassName('username')[0].innerText = '';
+            document.getElementsByClassName('username')[0].style.display = 'none';
+        }
+    };
 }
-displayUserName = () => {
-    if (store.config.sessionToken && document.getElementsByClassName('username')[0]) {
-        const str = store.config.sessionToken;
-        document.getElementsByClassName('username')[0].innerText = str.username;
-        document.getElementsByClassName('username')[0].style.display = 'block';
-        document.getElementsByClassName('user-section')[0].style.display = '';
-    } else if (!store.config.sessionToken && document.getElementsByClassName('username')[0]) {
-        document.getElementsByClassName('user-section')[0].style.display = 'none';
-        document.getElementsByClassName('username')[0].innerText = '';
-        document.getElementsByClassName('username')[0].style.display = 'none';
-    }
-};
 
 
 // Catalog
@@ -291,9 +304,9 @@ appendPageNumbers = () => {
         pageNumberContainer.innerHTML = "";
         let pageCount = pageConfig.pagesNeeded;
         if (pageCount == 1) {
-            pageNumberContainer.style.display = "none";
+            paginationContainer.style.display = "none";
         } else {
-            pageNumberContainer.style.display = "flex";
+            paginationContainer.style.display = "flex";
             for (let i = 0; i < pageCount; i++) {
                 if (pageConfig.pageNumber === i + 1) {
                     let pageSquare = `<span class="pages-page-number selected-page">${i+1}</span>`;
@@ -468,11 +481,6 @@ proceedToCheckout = () => {
         return;
     }
     var stripePublicKey = '';
-    let fullName = document.getElementById('inputFullName').value.trim();
-    let email = document.getElementById('inputEmail').value.trim();
-    let addressLineOne = document.getElementById('inputAddOne').value.trim();
-    let addressLineTwo = document.getElementById('inputAddTwo').value.trim();
-    let address = [addressLineOne, addressLineTwo];
     const xhr = new XMLHttpRequest();
     xhr.open('GET', '/api/stripeKeys', true);
         xhr.setRequestHeader("Content-type", "application/json");
@@ -491,6 +499,11 @@ proceedToCheckout = () => {
                         key: stripePublicKey,
                         locale: 'auto',
                         token: function(token) {
+                            let fullName = document.getElementById('inputFullName').value.trim();
+                            let email = document.getElementById('inputEmail').value.trim();
+                            let addressLineOne = document.getElementById('inputAddOne').value.trim();
+                            let addressLineTwo = document.getElementById('inputAddTwo').value.trim();
+                            let address = [addressLineOne, addressLineTwo];
                              fetch('/api/orders', {
                                  method: 'POST',
                                  headers: { 
@@ -505,8 +518,9 @@ proceedToCheckout = () => {
                                     email: email
                                 })
                              }).then( (response) => {
-                                return response.json()
+                                return response.json();
                              }).then( (data) => {
+                                closeWaitingForPayment();
                                  if (data.success === true) {
                                     displaySuccessMessage(data.orderId);
                                     cleanCart();
@@ -542,21 +556,22 @@ sendOrder = (event) => {
     addressLineOne = typeof(addressLineOne) === 'string' && addressLineOne.length > 0 ? addressLineOne : false;
     addressLineTwo = addressLineTwo.length === 0 ? " " : addressLineTwo;
     if (fullName && email && addressLineOne && agreement) {
-        checkOutContainer.innerHTML = "Waiting for payment..."
+        displayWaitingForPayment();
         orderInfo = [];
         let total = 0;
         for (let i = 0; i < cartItemCount; i++) {
             const cartItemId = document.getElementsByClassName('cart-id')[i+1].innerText;
             const cartQuantity = Number(document.getElementsByClassName('cart-quantity-number')[i].value);
-            const cartItemPrice = parseFloat(document.getElementsByClassName('cart-price')[i+1].innerText.replace("$",''));
+            const cartItemPrice = Number(document.getElementsByClassName('cart-price')[i+1].innerText.replace("$",''));
             const itemObj = {
                 'id' : cartItemId,
                 'quantity' : cartQuantity,
                 'price' : cartItemPrice 
             };
-            total += parseFloat(cartItemPrice * cartQuantity)
+            total += Number((cartItemPrice * cartQuantity).toFixed(2)); 
             orderInfo.push(itemObj);
         };
+        total = total.toFixed(2);
         stripeHandler.open({
             amount: total * 100
         })
@@ -592,12 +607,15 @@ displayErrorMessage = (message) => {
   </div>`;
 }
 
+displayWaitingForPayment = () => {
+    waitingForPaymentMessage.style.display = 'flex';
+}
+closeWaitingForPayment = () => {
+    waitingForPaymentMessage.style.display = 'none';
+}
+
 closeCheckoutWindow = () => {
-    orderInfo = [];
-    checkoutElement.style.opacity = '0';
-    setTimeout( function() {
-        checkoutElement.style.display = 'none';
-    }, 800)
+    window.location.href = "/";
 }
 
 cleanCart = () => {
@@ -651,7 +669,6 @@ checkOrder = (event) => {
             method: 'GET',
             headers: { "Content-type" : "application/json"}
         }).then( (response) => {
-            console.log(response);
             return response.json()
         }).then( (data) => {
             responseBoxElement.style.display = "block";
@@ -711,8 +728,19 @@ renewToken = () => {
 };
 
 adminLogin = () => {
-    const username = document.getElementById('employeeUsername').value;
-    const password = document.getElementById('employeePassword').value;
+    if (loginButton.classList.contains('btn-disabled')) return;
+    document.getElementsByClassName('errText')[0].innerText = '';
+    let username = document.getElementById('employeeUsername').value;
+    let password = document.getElementById('employeePassword').value;
+    if (username.trim().length === 0) {
+        document.getElementsByClassName('errText')[0].innerText = 'Please enter your username';
+        return;
+    }
+    if (password.trim().length === 0) {
+        document.getElementsByClassName('errText')[0].innerText = 'Please enter your password';
+        return;
+    };
+    loginButton.classList.add('btn-disabled');
     const payload = {
         username,
         password
@@ -730,9 +758,9 @@ adminLogin = () => {
     }).then( (data) => {
         if (error === true) {
             document.getElementsByClassName('errText')[0].innerText = data.message;
+            loginButton.classList.remove('btn-disabled');
         } else {
             setSessionToken(data);
-            console.log("logging in");
             window.location = '/dashboard';
         }
     })
@@ -770,7 +798,7 @@ redirectUserIfLoggedIn = () => {
 
 renderOrders = () => {
     if (ordersTable) {
-        ordersTable.innerHTML = `<tr><th>Order ID</th><th>Stripe Token ID</th><th>Customer Info</th><th>Order details</th>
+        ordersTable.innerHTML = `<tr><th>Order ID</th><th>Stripe Token ID</th><th>Date</th><th>Customer Info</th><th>Order details</th>
         <th>Total price</th><th>Status</th><th>Actions</th></tr>`;
         fetch('/api/orders', {
             method: 'GET',
@@ -779,9 +807,10 @@ renderOrders = () => {
             return response.json()
         }).then( (data) => {
             let ordersArray = data;
+            let sortedArray = ordersArray.sort( (a,b) => { return JSON.parse(a).date - JSON.parse(b).date });
             const orderCount = ordersArray.length;
             for (let i = 0; i < orderCount; i++) {
-                let obj = JSON.parse(ordersArray[i]);
+                let obj = JSON.parse(sortedArray[i]);
                 let tableRow = document.createElement('tr');
                 let itemString = "";
                 let orderData = obj.orderData;
@@ -790,6 +819,7 @@ renderOrders = () => {
                     let itemQuantity = orderData[i][1];
                     itemString += itemId + " x " + itemQuantity + "<br>";
                 };
+                let dateObj = new Date(obj.date);
                 let customerString = obj.address + "<br>" + obj.email;
                 // Form the action button
                 let buttonHTML = '';
@@ -804,6 +834,7 @@ renderOrders = () => {
                 }
                 tableRow.innerHTML = `<td class="table-small">${obj.orderId}</td>
                     <td class="table-small">${obj.tokenId}</td>
+                    <td class="table-small">${dateObj.toLocaleString()}</td>
                     <td class="table-small">${customerString}</td>
                     <td>${itemString}</td>
                     <td>$${obj.totalPrice}</td>
@@ -1006,7 +1037,7 @@ addNewProduct = () => {
     let title = productTitle.value;
     title = title.trim().length > 0 ? title.trim() : false;
     let imageURL = productImageURL.value;
-    imageURL = imageURL.trim().length > 0 ? imageURL.trim() : false;
+    imageURL = imageURL.trim().length > 0 ? imageURL.trim() : '';
     let category = productCategory.value;
     let description = productDescription.value;
     description = description.trim().length > 0 ? description.trim() : false;
@@ -1030,8 +1061,9 @@ addNewProduct = () => {
                 closeProductsModal();
                 renderTableErrorMessage(data.message);
                 renderProductsForAdmin();
-
-        })
+            }).catch( (err) => {
+                console.log(err);
+            })
     } else {
         if (!title) { productTitle.style.border = "1px solid #C84741" } else { productTitle.style.border = "1px solid grey"};
         if (!description) { productDescription.style.border = "1px solid #C84741"} else { productDescription.style.border = "1px solid grey"};
@@ -1045,12 +1077,12 @@ editProduct = () => {
     let title = productTitle.value;
     title = title.trim().length > 0 ? title.trim() : false;
     let imageURL = productImageURL.value;
-    imageURL = imageURL.trim().length > 0 ? imageURL.trim() : false;
+    imageURL = imageURL.trim().length > 0 ? imageURL.trim() : '';
     let category = productCategory.value;
     let description = productDescription.value;
     description = description.trim().length > 0 ? description.trim() : false;
     let price = parseFloat(Number(productPrice.value) * 100);
-    if (title && imageURL && description && price) {
+    if (title && description && price) {
         fetch('/api/products', {
             method: 'PUT',
             headers: { 'Content-type' : 'application/json'},
@@ -1071,10 +1103,11 @@ editProduct = () => {
             closeProductsModal();
             renderTableErrorMessage(data.message);
             renderProductsForAdmin();
+        }).catch( (err) => {
+            console.log(err);
         })
     } else {
         if (!title) { productTitle.style.border = "1px solid #C84741" } else { productTitle.style.border = "1px solid grey"};
-        if (!imageURL) { productImageURL.style.border = "1px solid #C84741" } else {productImageURL.style.boder = "1px solid grey"};
         if (!description) { productDescription.style.border = "1px solid #C84741"} else { productDescription.style.border = "1px solid grey"};
         if (!price) { productPrice.style.border = "1px solid #C84741"} else { productPrice.style.border = "1px solid grey" };
         errBox.innerHTML = "Please fill in the inputs marked"
@@ -1379,9 +1412,12 @@ scrollToCart = () => {
         behavior: 'smooth' 
     });
 }
+// Object instantiation
+var navigation = new Navigation();
+
 // Append functions
-if (toggleNavButton) { toggleNavButton.addEventListener('click', showNav)};
-if (closeButton) { closeButton.addEventListener('click', closeNav)};
+if (toggleNavButton) { toggleNavButton.addEventListener('click', navigation.showNav)};
+if (closeButton) { closeButton.addEventListener('click', navigation.closeNav)};
 if (sortListElement) { sortListElement.addEventListener('change', checkSortingType)};
 if (pageQuantityInput) { pageQuantityInput.addEventListener('change', updateItemsPerPage)};
 if (closeCheckoutButton) { closeCheckoutButton.addEventListener('click', closeCheckoutWindow);}
@@ -1402,7 +1438,7 @@ initializeStore = () => {
     if (productsTable) { renderProductsForAdmin();}
     if (usersTable) { renderUsers();}
     // Loading functions
-    displayUserName();
+    navigation.displayUserName();
     requestCatalogData();
     // "Shopping" functions
     addButtonFunctions();
