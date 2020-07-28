@@ -164,6 +164,10 @@ body {
   transform: scale(1.02, 1.02);
 }
 
+.navbar-toggle-container {
+  display: none;
+}
+
 .toggleNav {
   display: none;
 }
