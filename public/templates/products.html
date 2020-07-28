@@ -1,14 +1,26 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Online Store</title>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@200;300;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Quicksand&display=swap" rel="stylesheet">
+    <link type="image/x-icon" rel="icon" href="public/favicon.ico">
+    <link rel="stylesheet" type="text/css" href="public/styles.css">
+    <script src="public/store.js" defer></script>
+    <script src="public/js/navigation.js" defer></script>
+    <script src="public/js/products.js" defer></script>
+  </head>
+  <body>
+
 <div class="navigation-bar navigation-admin">
-  <div class="closeNav">X</div>
-  <div class="toggleNav">
-    <span class="bar"></span>
-    <span class="bar"></span>
-    <span class="bar"></span>
+  <div class="navbar-toggle-container">
+    <div class="closeNav">&times;</div>
+    <div class="toggleNav">
+      <img class="bars-icon" src="public/icons/bars.png">
+    </div>
   </div>
-  <div class="user-section">
-    <a class="username" href="/dashboard"></a>
-    <div class="nav-log-out"></div>
-  </div>
+  <div class="user-section"></div>
   <a class="navbar-item" href="/">Back to store</a>
   <a class="navbar-item" href="/orders">Orders</a>
   <a class="navbar-item" href="/users">Users</a>

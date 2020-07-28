@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Online Store</title>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@200;300;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Quicksand&display=swap" rel="stylesheet">
+    <link type="image/x-icon" rel="icon" href="public/favicon.ico">
+    <link rel="stylesheet" type="text/css" href="public/styles.css">
+    <script src="public/store.js" defer></script>
+    <script src="public/js/navigation.js" defer></script>
+    <script src="public/js/orders.js" defer></script>
+  </head>
+  <body>
+
+<div class="navigation-bar navigation-admin">
+  <div class="navbar-toggle-container">
+    <div class="closeNav">&times;</div>
+    <div class="toggleNav">
+      <img class="bars-icon" src="public/icons/bars.png">
+    </div>
+  </div>
+  <div class="user-section"></div>
+  <a class="navbar-item" href="/">Back to store</a>
+  <a class="navbar-item" href="/orders">Orders</a>
+  <a class="navbar-item" href="/users">Users</a>
+  <a class="navbar-item" href="/products">Products</a>
+</div>
+<div class="confirm-modal-container"></div>
+
+<div class="err-container"></div>
+
+  <div class='container'>
+    <h1>Orders</h1>
+    <table id='table-orders'>
+    <tr>
+        <th>Order ID</th>
+        <th>Stripe Token ID</th>
+        <th>Customer Info</th>
+        <th>Order details</th>
+        <th>Total price</th>
+        <th>Status</th>
+        <th>Actions</th>
+    </tr>
+    </table>
+  </div>
