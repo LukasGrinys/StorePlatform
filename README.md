@@ -1,12 +1,12 @@
 # StorePlatform
 
-An online store API, created by using Node JS
+An online store example, built with HTML/CSS/JS and NodeJS
 
-What you can do:
-- Buy items from catalog
-- Check the status of your order by ID
+Client features:
+- Buying items from catalog using Stripe
+- Checking order status by order ID
 
-Management side:
+Management features:
 - Process orders
 - Add/edit/remove catalog items
 - Add/edit/remove users
