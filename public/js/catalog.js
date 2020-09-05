@@ -140,7 +140,7 @@ appendCatalogItems = () => {
                     <input type="number" min="1" max="99" value="1">
                     <button type="button" onclick="this.parentNode.querySelector('input[type=number]').stepUp()" class="number-change numberInc">+</button>
                 </div>
-                <div class="btn-addToCart btn-blue">Add to cart</div>
+                <div class="btn-blue btn-addToCart flex-center">Add to cart</div>
                 </div>`;
             itemContainer.classList.add('item-container');
             catalogElement.appendChild(itemContainer);

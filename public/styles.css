@@ -1,11 +1,3 @@
-/* spalvos 
-balta FBFAF8
-melsva B0C6B0
-melsvesne 80A492
-raudona C84741
-ruda 8C715B
-*/
-
 * {
   box-sizing: border-box;
   margin: 0;
@@ -14,28 +6,29 @@ body {
   background-color: #B0C6B0;
   font-family: "Nunito", sans-serif;
 }
-.loading-screen {
-  display: flex; /* Flex */
-  justify-content: center;
+.flex-center {
+  display: flex;
   align-items: center;
-  position: fixed;
+  justify-content: center;
+}
+
+.loading-screen {
+  position: absolute;
   top:0;
   left:0;
   overflow: hidden;
   z-index: 150;
-  width: 100vw;
-  height: 100vh;
-  background-color: rgba(251, 250, 248, 0.705);
+  width: 100%;
+  height: 100%;
+  background-color: #B0C6B0;
 }
 .loading-section {
-  width: 200px;
-  height: 200px;
+  width: 150px;
+  height: 150px;
   position: relative;
 }
 .section-title {
-  padding: 80px;
-  font-size: 1.5em;
-  margin-left: -20px;
+  font-size: 1.3rem;
   color: #80A492;
   animation: blend 2s infinite;
 }
@@ -65,6 +58,7 @@ body {
   100% { opacity: 1; }
 }
 
+/* BUTTONS */
 .btn-blue {
   background-color: #80A492;
   transition-duration: 0.2s;
@@ -72,13 +66,12 @@ body {
   color: white;
   border: none;
   cursor: pointer;
-  font-size: 1.5em;
+  font-size: 1.4em;
   padding: 5px 10px;
   border-radius: 4px;
   max-width: 110px;
   text-align: center;
   margin: 0 auto;
-
 }
 .btn-blue:hover {
   background-color: rgb(102, 131, 116);
@@ -96,19 +89,10 @@ body {
 }
 .btn-orange:hover {
   background-color: rgb(155, 55, 50);
-  transition-duration: 0.2s;
-  -webkit-transition-duration: 0.2s;
 }
 .btn-orange:active {
   background-color: rgb(138, 69, 48);
   transform: scale(0.95,0.95);
-}
-.btn-green {
-  background-color: rgb(106, 172, 62);
-  transition-duration: 0.2s;
-  -webkit-transition-duration: 0.2s;
-  color: white;
-  border: none;
 }
 
 .header {
@@ -118,9 +102,6 @@ body {
   position: relative;
   color: #FBFAF8;
   font-size: 3.5em;
-  display: flex;
-  justify-content: center;
-  align-items: center;
   font-weight: bold;
   font-family: "Quicksand", sans-serif;
   cursor: default;
@@ -209,9 +190,6 @@ body {
   opacity: 1;
 }
 a.username {
-  display: flex;
-  align-items: center;
-  justify-content: center;
   font-size: 1.2em;
 }
 .user-icon {
@@ -219,6 +197,9 @@ a.username {
   height: 20px;
 }
 @media (max-width: 620px) {
+  .header {
+    font-size: 2rem;
+  }
   .navigation-bar {
     width: 100%;
     min-height: 38px;
@@ -290,6 +271,7 @@ a.username {
   table {
     font-size: 0.7em;
   }
+  
 }
 /* Floating cart icon */
 .floating-cart {
@@ -350,6 +332,7 @@ a.username {
 .container {
   width: 100%;
   padding: 5px;
+  position: relative;
 }
 h1 {
   text-align: center;
@@ -576,7 +559,8 @@ h1 {
   align-items: center;
 }
 .item-container {
-  width: 350px;
+  width: 100%;
+  max-width: 350px;
   height: 420px;
   margin: 15px;
   background-color: #FBFAF8;
@@ -694,16 +678,13 @@ input[type=number]::-webkit-outer-spin-button {
 }
 
 .btn-addToCart {
-  font-size: 1em;
+  font-size: 0.8rem;
   color: white;
   border: 1px solid white;
   border-radius: 5px;
   cursor: pointer;
   width: 110px;
   height: 35px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
 }
 
 /* CART STYLES */
@@ -733,6 +714,7 @@ input[type=number]::-webkit-outer-spin-button {
   height: 45px;
   border-radius: 2px;
   object-fit: cover;
+  margin: 0 auto;
 }
 .cart-item > span {
   padding: 15px 0;

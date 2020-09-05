@@ -32,7 +32,7 @@ renderProducts = () => {
             let author = item.lastChangesBy;
             let d = new Date(lastChanges);
             let itemHTML = `<td class="table-small">${itemId}</td>
-            <td><img class="cart-item-image" src="${imageUrl}"></td>
+            <td style="width:50px"><img class="cart-item-image" src="${imageUrl}"></td>
             <td class="table-small">${title}</td>
             <td class="table-small">${category}</td>
             <td class="table-small">${fixThePrice(price / 100)}</td>

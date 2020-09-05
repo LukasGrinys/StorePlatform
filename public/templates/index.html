@@ -14,20 +14,11 @@
   </head>
   <body>
 
-    <div class='header'>
+    <div class='header flex-center'>
       <img src="./public/header.jpg" class="header_image">
       <div class="header-text">Online Store</div>
     </div>
   
-  
-  <div class='loading-screen'>
-    <div class="loading-section">
-      <div class="section-title">Loading</div>
-      <div class="line line-slow"></div>
-      <div class="line line-fast"></div>
-    </div>
-  </div>
-
     <div class="navigation-bar">
       <div class="navbar-toggle-container">
         <div class="closeNav">&times;</div>
@@ -35,7 +26,9 @@
           <img class="bars-icon" src="public/icons/bars.png">
         </div>
       </div>
-      <div class="user-section"></div>
+      <div class="user-section">
+        <span style="color:#f2f2f2;font-size:0.8rem;padding:10px 15px">Loading</span>
+      </div>
       <a class="navbar-item" href="/">Store</a>
       <a class="navbar-item" href="/checkorder">Check order</a>
       <div class="nav-link navbar-item" id="management">Administration</div>
@@ -44,6 +37,7 @@
     <div class="floating-cart">
       <div class="floating-cart-text">Cart</div>
     </div>
+
     <div class='container'>
       <h1>Catalog</h1>
       <div class="pages-container">
@@ -84,9 +78,20 @@
         </div>
       </div>
 
-      <div class='shop-items'>
-
+      <div class='loading-screen flex-center'>
+        <div class="loading-section flex-center">
+          <div class="section-title">Loading</div>
+          <div class="line line-slow"></div>
+          <div class="line line-fast"></div>
+        </div>
       </div>
+
+      <div class='shop-items'>
+          
+      </div>
+    </div>
+
+    <div class="container">
       <h1>Cart</h1>
       <div class='cart' id="cart">
         <div class='cart-table'>
@@ -107,36 +112,34 @@
         </div>
         <button type="button" class="purchase-btn btn-blue">Proceed to checkout</button>
       </div>
+    </div>
 
-      <div class="checkout" id="checkout">
-        <div class="checkout-header">Checkout</div>
-        <div class="close-checkout">X</div>
-        <div class="checkout-container">
-          <form class="order-details" id="sendOrder">
-            <span><b>Enter your full name:*</b></span>
-            <input type="text" name="fullName" id="inputFullName" placeholder="John Doe" required><br>
-            <span><b>Enter your e-mail*</b></span>
-            <input type="e-mail" name="email" id="inputEmail" placeholder="username@someemail.com" required><br>
-            <span><b>Enter the shipping address:</b></span><br>
-            <span>Address line 1:*</span>
-            <input type="textbox" name="address-line-one" id="inputAddOne" placeholder="Main st. 1" required><br>
-            <span>Address line 2:</span>
-            <input type="textbox" name="address-line-two" id="inputAddTwo" placeholder="City, State, Country"><br>
-            <div class="agreement-field">
-              <input type='checkbox' name="agreement" id="agreement">
-              <label for="agreement">I agree with terms and agreements</label>
-            </div>
-            <span style="font-size:0.8em">* - required fields</span><br>
-            <div class="formError"></div>
-            <button type="submit" class="order-send-btn btn-blue">Confirm order</button>
-          </form>
-
-          <div class="checkout-waiting-message" style="display:none">
-            Waiting for payment..
+    <div class="checkout" id="checkout">
+      <div class="checkout-header">Checkout</div>
+      <div class="close-checkout">X</div>
+      <div class="checkout-container">
+        <form class="order-details" id="sendOrder">
+          <span><b>Enter your full name:*</b></span>
+          <input type="text" name="fullName" id="inputFullName" placeholder="John Doe" required><br>
+          <span><b>Enter your e-mail*</b></span>
+          <input type="e-mail" name="email" id="inputEmail" placeholder="username@someemail.com" required><br>
+          <span><b>Enter the shipping address:</b></span><br>
+          <span>Address line 1:*</span>
+          <input type="textbox" name="address-line-one" id="inputAddOne" placeholder="Main st. 1" required><br>
+          <span>Address line 2:</span>
+          <input type="textbox" name="address-line-two" id="inputAddTwo" placeholder="City, State, Country"><br>
+          <div class="agreement-field">
+            <input type='checkbox' name="agreement" id="agreement">
+            <label for="agreement">I agree with terms and agreements</label>
           </div>
+          <span style="font-size:0.8em">* - required fields</span><br>
+          <div class="formError"></div>
+          <button type="submit" class="order-send-btn btn-blue">Confirm order</button>
+        </form>
 
+        <div class="checkout-waiting-message" style="display:none">
+          Waiting for payment..
         </div>
-      
       </div>
     </div>
 

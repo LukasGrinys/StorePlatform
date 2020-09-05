@@ -54,7 +54,7 @@ class Navigation {
             const username = store.sessionToken.username;
             userSection.style.display = '';
             userSection.innerHTML = `<div class="nav-log-out" onClick="logAdminOut()"></div>
-            <a class="username" href="/dashboard">
+            <a class="username flex-center" href="/dashboard">
                 <img src="public/icons/user.png" class="user-icon"/>
                 ${username}
             </a>
